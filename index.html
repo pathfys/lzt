@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Lolz Market</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Unbounded:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #0d0f0d;
+  --bg2:      #111411;
+  --bg3:      #161a16;
+  --card:     rgba(16,21,16,0.92);
+  --accent:   #5cb85c;
+  --accent2:  #7ed17e;
+  --accent3:  #a8e6a8;
+  --dim-g:    rgba(92,184,92,0.08);
+  --dim-g2:   rgba(92,184,92,0.15);
+  --border:   rgba(92,184,92,0.14);
+  --border2:  rgba(255,255,255,0.06);
+  --text:     #e8f0e8;
+  --text-muted:#7a8f7a;
+  --text-dim: #3d4f3d;
+  --green:    #5cb85c;
+  --orange:   #e5a020;
+  --shadow:   0 8px 32px rgba(0,0,0,0.65);
+  --shadow-g: 0 8px 28px rgba(92,184,92,0.18);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'JetBrains Mono',monospace;
+  min-height:100vh;
+  overflow-x:hidden;
+  padding-bottom:96px;
+  position:relative;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(92,184,92,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(92,184,92,0.03) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none;z-index:0;
+}
+body::after{
+  content:'';position:fixed;
+  top:-20%;right:-15%;
+  width:60vw;height:60vw;
+  max-width:440px;max-height:440px;
+  background:radial-gradient(circle,rgba(92,184,92,0.06) 0%,transparent 65%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:fixed;top:0;left:0;width:100%;height:56px;
+  background:rgba(10,13,10,0.92);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;z-index:999;
+}
+.logo{
+  font-family:'Unbounded',sans-serif;
+  font-size:19px;font-weight:900;letter-spacing:-0.5px;
+  color:var(--accent2);
+  filter:drop-shadow(0 0 10px rgba(92,184,92,0.4));
+  display:flex;align-items:center;gap:6px;
+}
+.logo-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 8px var(--accent);
+  animation:dotPulse 2s ease-in-out infinite;
+}
+@keyframes dotPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.6;transform:scale(0.7);}}
+
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.user-pill{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(92,184,92,0.07);
+  border:1px solid rgba(92,184,92,0.18);
+  border-radius:999px;
+  padding:4px 10px 4px 4px;
+  cursor:pointer;
+  transition:box-shadow 0.2s,background 0.2s;
+  max-width:130px;
+}
+.user-pill:active{background:rgba(92,184,92,0.12);}
+.user-pill-avatar{
+  width:24px;height:24px;border-radius:50%;
+  background:rgba(92,184,92,0.15);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;color:var(--accent2);
+  flex-shrink:0;overflow:hidden;
+}
+.user-pill-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.user-pill-name{
+  font-size:11px;font-weight:600;color:var(--text);
+  max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+/* ── PAGE ── */
+.page-wrap{padding:68px 13px 0;position:relative;z-index:1;}
+.screen{display:none;animation:fadeUp 0.28s ease both;}
+.screen.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── CARD ── */
+.card{
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:14px;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  padding:16px;margin-bottom:11px;
+  box-shadow:var(--shadow);
+}
+
+/* ── BALANCE CARD ── */
+.balance-card{
+  background:linear-gradient(145deg,#0a110a 0%,#0f180f 50%,#080d08 100%);
+  border:1px solid rgba(92,184,92,0.25);
+  border-radius:18px;padding:24px 20px;
+  margin-bottom:13px;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-g),inset 0 1px 0 rgba(92,184,92,0.07);
+}
+.balance-card::before{
+  content:'';position:absolute;inset:0;
+  background-image:repeating-linear-gradient(
+    -45deg,rgba(92,184,92,0.03) 0px,rgba(92,184,92,0.03) 1px,transparent 1px,transparent 20px
+  );pointer-events:none;
+}
+.balance-card::after{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:160px;height:160px;
+  background:radial-gradient(circle,rgba(92,184,92,0.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.balance-eyebrow{
+  font-size:9px;font-weight:600;color:rgba(92,184,92,0.6);
+  letter-spacing:3px;text-transform:uppercase;
+  margin-bottom:8px;position:relative;z-index:1;
+  display:flex;align-items:center;gap:8px;
+}
+.balance-eyebrow::before{content:'//';color:rgba(92,184,92,0.4);font-weight:700;}
+.balance-amount{
+  font-family:'Unbounded',sans-serif;font-size:40px;font-weight:900;
+  color:#fff;letter-spacing:-1px;line-height:1;
+  position:relative;z-index:1;margin-bottom:3px;
+}
+.balance-amount span{font-size:20px;color:rgba(255,255,255,0.4);font-weight:400;}
+.balance-usd{font-size:12px;color:var(--text-muted);position:relative;z-index:1;margin-bottom:20px;}
+
+/* ── SECTION TITLE ── */
+.section-title{
+  font-size:10px;font-weight:700;
+  color:var(--text-muted);letter-spacing:2px;
+  text-transform:uppercase;margin-bottom:9px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+
+/* ── QUICK ENTRY ── */
+.quick-entry{
+  background:var(--dim-g);border:1px solid var(--border);
+  border-radius:14px;padding:14px 16px;margin-bottom:11px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:transform 0.15s,background 0.15s;position:relative;overflow:hidden;
+}
+.quick-entry:active{transform:scale(0.97);background:var(--dim-g2);}
+.quick-entry-icon{
+  width:42px;height:42px;border-radius:11px;
+  background:rgba(92,184,92,0.12);border:1px solid rgba(92,184,92,0.2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.quick-entry-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.quick-entry-sub{font-size:11px;color:var(--text-muted);}
+
+/* ── HOME GRID ── */
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px;}
+.home-card{
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:14px;padding:14px 13px;cursor:pointer;
+  display:flex;flex-direction:column;gap:9px;
+  transition:transform 0.15s,border-color 0.2s;
+  overflow:hidden;position:relative;
+}
+.home-card:active{transform:scale(0.96);}
+.home-card .hq-label{font-size:12px;font-weight:700;color:var(--text);}
+.home-card .hq-sub{font-size:10px;color:var(--text-muted);}
+.hq-icon-wrap{
+  width:40px;height:40px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+
+/* ── MARKET ITEMS ── */
+.market-item{
+  display:flex;align-items:center;gap:11px;
+  padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.market-item:last-child{border-bottom:none;padding-bottom:0;}
+.market-item:first-child{padding-top:0;}
+.market-avatar{
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(92,184,92,0.08);
+  border:1px solid rgba(92,184,92,0.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.market-info{flex:1;}
+.market-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.market-date{font-size:10px;color:var(--text-muted);}
+.market-amount{text-align:right;}
+.market-price{
+  font-family:'Unbounded',sans-serif;font-size:14px;
+  font-weight:700;color:var(--text);margin-bottom:3px;
+}
+.market-status{
+  font-size:9px;font-weight:700;padding:2px 8px;border-radius:5px;
+  display:inline-block;letter-spacing:0.5px;text-transform:uppercase;
+}
+.market-status.success{background:rgba(92,184,92,0.12);color:#7ed17e;}
+.market-status.pending{background:rgba(229,160,32,0.12);color:#f0b929;}
+.market-status.failed{background:rgba(217,83,79,0.12);color:#e87c79;}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;width:100%;height:80px;
+  z-index:999;display:flex;align-items:center;justify-content:center;
+  padding:0 10px 12px;
+}
+.bottom-nav-inner{
+  width:100%;max-width:480px;
+  background:rgba(10,14,10,0.94);
+  border:1px solid rgba(92,184,92,0.16);
+  border-radius:18px;backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  box-shadow:0 8px 32px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.03);
+  display:flex;align-items:center;justify-content:space-around;
+  padding:5px 2px;height:56px;
+}
+.nav-item{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  cursor:pointer;padding:4px 5px;border-radius:10px;
+  transition:background 0.2s,transform 0.15s;
+  flex:1;border:none;background:transparent;
+}
+.nav-item:active{transform:scale(0.88);}
+.nav-item.active{background:rgba(92,184,92,0.1);}
+.nav-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;}
+.nav-icon svg{color:#2e3e2e;transition:color 0.2s;}
+.nav-item.active .nav-icon svg{color:var(--accent);}
+.nav-label{font-size:7px;font-weight:700;color:#2e3e2e;transition:color 0.2s;letter-spacing:0.5px;text-transform:uppercase;}
+.nav-item.active .nav-label{color:var(--accent);}
+
+/* ── PROFILE ── */
+.profile-hero{
+  background:linear-gradient(145deg,#0a110a,#0f180f);
+  border:1px solid rgba(92,184,92,0.22);
+  border-radius:18px;padding:26px 20px;
+  margin-bottom:13px;display:flex;flex-direction:column;
+  align-items:center;gap:9px;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-g);
+}
+.profile-hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:repeating-linear-gradient(
+    -45deg,rgba(92,184,92,0.03) 0px,rgba(92,184,92,0.03) 1px,transparent 1px,transparent 22px
+  );
+}
+.profile-avatar{
+  width:70px;height:70px;border-radius:50%;
+  background:rgba(92,184,92,0.12);
+  border:2px solid rgba(92,184,92,0.35);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:var(--accent2);
+  position:relative;z-index:1;overflow:hidden;
+  box-shadow:0 0 24px rgba(92,184,92,0.2);
+}
+.profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.profile-name{
+  font-family:'Unbounded',sans-serif;font-size:20px;font-weight:700;
+  letter-spacing:-0.5px;color:#fff;position:relative;z-index:1;text-align:center;
+}
+.profile-username{font-size:11px;color:rgba(255,255,255,0.4);position:relative;z-index:1;}
+.profile-badge{
+  background:rgba(92,184,92,0.1);border:1px solid rgba(92,184,92,0.25);
+  border-radius:20px;padding:4px 14px;font-size:10px;font-weight:700;
+  color:var(--accent2);letter-spacing:0.5px;position:relative;z-index:1;
+}
+
+.profile-stats-row{display:flex;gap:9px;margin-bottom:11px;}
+.profile-stat-card{
+  flex:1;background:var(--card);border:1px solid var(--border2);
+  border-radius:13px;padding:13px 9px;text-align:center;box-shadow:var(--shadow);
+}
+.profile-stat-value{
+  font-family:'Unbounded',sans-serif;font-size:19px;font-weight:700;
+  color:var(--text);letter-spacing:-0.5px;line-height:1;margin-bottom:3px;
+}
+.profile-stat-icon{display:flex;justify-content:center;margin-bottom:7px;}
+.profile-stat-label{font-size:9px;color:var(--text-muted);line-height:1.3;letter-spacing:0.3px;}
+
+.profile-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.profile-row:last-child{border-bottom:none;}
+.profile-row-left{display:flex;align-items:center;gap:10px;}
+.profile-row-icon{
+  width:30px;height:30px;border-radius:8px;
+  background:rgba(92,184,92,0.07);border:1px solid rgba(92,184,92,0.1);
+  display:flex;align-items:center;justify-content:center;
+}
+.profile-row-label{font-size:12px;font-weight:500;color:var(--text);}
+.profile-row-value{
+  font-size:11px;color:var(--text-muted);font-weight:500;
+  max-width:55%;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.profile-row-value.accent{color:var(--accent2);}
+
+/* ── TRAINING ── */
+.training-hero{
+  background:linear-gradient(145deg,#060a06,#0a120a);
+  border:1px solid rgba(56,130,184,0.22);border-radius:18px;
+  padding:22px 18px;margin-bottom:13px;position:relative;overflow:hidden;
+  box-shadow:0 8px 28px rgba(56,130,184,0.08);
+}
+.training-hero::after{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:140px;height:140px;
+  background:radial-gradient(circle,rgba(56,130,184,0.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.training-eyebrow{
+  font-size:9px;font-weight:700;color:rgba(90,160,220,0.7);
+  letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;
+  position:relative;z-index:1;display:flex;align-items:center;gap:6px;
+}
+.training-eyebrow::before{content:'>';color:rgba(90,160,220,0.5);}
+.training-title{
+  font-family:'Unbounded',sans-serif;font-size:22px;font-weight:700;
+  color:#fff;letter-spacing:-0.5px;position:relative;z-index:1;margin-bottom:5px;
+}
+.training-sub{font-size:11px;color:rgba(255,255,255,0.4);position:relative;z-index:1;margin-bottom:14px;line-height:1.6;}
+.training-progress-bar{height:4px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;position:relative;z-index:1;margin-bottom:5px;}
+.training-progress-fill{height:100%;background:linear-gradient(90deg,#3882b8,#5caee0);border-radius:99px;transition:width 0.6s ease;}
+.training-progress-label{font-size:10px;color:rgba(255,255,255,0.35);position:relative;z-index:1;}
+
+.module-card{
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:14px;padding:14px;margin-bottom:9px;
+  cursor:pointer;display:flex;align-items:center;gap:12px;
+  transition:transform 0.15s,border-color 0.15s;
+}
+.module-card:active{transform:scale(0.97);}
+.module-card.done{border-color:rgba(92,184,92,0.18);}
+.module-card.locked{opacity:0.4;cursor:default;}
+.module-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.module-icon.blue{background:rgba(56,130,184,0.1);border:1px solid rgba(56,130,184,0.18);}
+.module-icon.green{background:rgba(92,184,92,0.08);border:1px solid rgba(92,184,92,0.15);}
+.module-icon.gold{background:rgba(229,160,32,0.09);border:1px solid rgba(229,160,32,0.14);}
+.module-icon.purple{background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.14);}
+.module-info{flex:1;}
+.module-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.module-desc{font-size:10px;color:var(--text-muted);margin-bottom:5px;line-height:1.5;}
+.module-meta{display:flex;gap:7px;align-items:center;}
+.module-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:0.5px;text-transform:uppercase;}
+.module-tag.blue{background:rgba(56,130,184,0.1);color:#5caee0;}
+.module-tag.green{background:rgba(92,184,92,0.1);color:#7ed17e;}
+.module-tag.gold{background:rgba(229,160,32,0.1);color:#f0b929;}
+.module-check{margin-left:auto;flex-shrink:0;}
+
+.manual-card{
+  background:linear-gradient(145deg,rgba(12,10,20,0.95),rgba(18,14,30,0.9));
+  border:1px solid rgba(139,92,246,0.22);border-radius:14px;
+  padding:14px;margin-bottom:9px;cursor:pointer;
+  display:flex;align-items:center;gap:12px;
+  transition:transform 0.15s,border-color 0.2s;
+}
+.manual-card:active{transform:scale(0.97);}
+
+/* ── CAREER ── */
+.career-hero{
+  background:linear-gradient(145deg,#050a05,#091209);
+  border:1px solid rgba(92,184,92,0.18);border-radius:18px;
+  padding:22px 18px;margin-bottom:13px;position:relative;overflow:hidden;
+  box-shadow:0 8px 28px rgba(92,184,92,0.07);
+}
+.career-hero::after{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:140px;height:140px;
+  background:radial-gradient(circle,rgba(92,184,92,0.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+.rank-badge-hero{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(92,184,92,0.09);border:1px solid rgba(92,184,92,0.22);
+  border-radius:20px;padding:5px 14px;
+  font-size:12px;font-weight:700;color:var(--accent2);position:relative;z-index:1;
+}
+.career-title{
+  font-family:'Unbounded',sans-serif;font-size:24px;font-weight:700;
+  color:#fff;letter-spacing:-0.5px;position:relative;z-index:1;margin-bottom:3px;
+}
+.career-sub{font-size:11px;color:rgba(255,255,255,0.38);position:relative;z-index:1;margin-bottom:14px;line-height:1.6;}
+.career-xp-bar{height:5px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;position:relative;z-index:1;margin-bottom:4px;}
+.career-xp-fill{height:100%;background:linear-gradient(90deg,#5cb85c,#7ed17e);border-radius:99px;transition:width 0.6s ease;}
+.career-xp-label{font-size:10px;color:rgba(255,255,255,0.3);position:relative;z-index:1;}
+
+/* ── TOP ── */
+.top-hero{
+  background:linear-gradient(145deg,#0a0800,#141000);
+  border:1px solid rgba(229,160,32,0.22);border-radius:18px;
+  padding:22px 18px;margin-bottom:13px;position:relative;overflow:hidden;
+  box-shadow:0 8px 28px rgba(229,160,32,0.07);
+}
+.top-hero::after{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:140px;height:140px;
+  background:radial-gradient(circle,rgba(229,160,32,0.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+.top-eyebrow{
+  font-size:9px;font-weight:700;color:rgba(229,160,32,0.65);
+  letter-spacing:3px;text-transform:uppercase;margin-bottom:7px;
+  position:relative;z-index:1;display:flex;align-items:center;gap:6px;
+}
+.top-eyebrow::before{content:'>';color:rgba(229,160,32,0.45);}
+.top-hero-title{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;position:relative;z-index:1;margin-bottom:3px;}
+.top-hero-sub{font-size:11px;color:rgba(255,255,255,0.38);position:relative;z-index:1;line-height:1.5;}
+
+.podium-wrap{display:flex;align-items:flex-end;justify-content:center;gap:7px;margin-bottom:14px;padding:0 2px;}
+.podium-slot{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;}
+.podium-avatar-top{
+  width:48px;height:48px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:18px;font-weight:700;color:#fff;
+  flex-shrink:0;overflow:hidden;
+}
+.podium-avatar-top img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.podium-name{font-size:9px;font-weight:700;color:var(--text);text-align:center;letter-spacing:0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
+.podium-ton{font-family:'Unbounded',sans-serif;font-size:10px;text-align:center;letter-spacing:0;font-weight:700;}
+.podium-step{width:100%;border-radius:8px 8px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7px 3px 10px;}
+.podium-step.p1{height:72px;background:linear-gradient(180deg,rgba(255,215,0,0.14),rgba(255,215,0,0.04));border:1px solid rgba(255,215,0,0.25);}
+.podium-step.p2{height:54px;background:linear-gradient(180deg,rgba(192,192,192,0.1),rgba(192,192,192,0.03));border:1px solid rgba(192,192,192,0.17);}
+.podium-step.p3{height:40px;background:linear-gradient(180deg,rgba(205,127,50,0.1),rgba(205,127,50,0.03));border:1px solid rgba(205,127,50,0.17);}
+.podium-rank-num{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;}
+.p1 .podium-rank-num{color:rgba(255,215,0,0.75);}
+.p2 .podium-rank-num{color:rgba(192,192,192,0.65);}
+.p3 .podium-rank-num{color:rgba(205,127,50,0.65);}
+
+.leader-item{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.leader-item:last-child{border-bottom:none;padding-bottom:0;}
+.leader-item:first-child{padding-top:0;}
+.leader-rank{font-family:'Unbounded',sans-serif;font-size:15px;color:var(--text-dim);width:22px;text-align:center;flex-shrink:0;font-weight:700;}
+.leader-avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;flex-shrink:0;overflow:hidden;}
+.leader-avatar img{width:100%;height:100%;object-fit:cover;border-radius:10px;}
+.leader-info{flex:1;}
+.leader-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:1px;}
+.leader-meta{font-size:10px;color:var(--text-muted);}
+.leader-right{text-align:right;}
+.leader-ton{font-family:'Unbounded',sans-serif;font-size:13px;color:var(--text);letter-spacing:-0.3px;font-weight:700;}
+.leader-count{font-size:10px;color:var(--text-muted);}
+.leader-item.me{background:rgba(92,184,92,0.05);border-radius:11px;padding:11px;margin:-2px -3px;border:1px solid rgba(92,184,92,0.13);}
+
+/* ── SUPPORT ── */
+.support-hero{
+  background:linear-gradient(145deg,#060806,#0a0e0a);
+  border:1px solid rgba(52,152,219,0.22);border-radius:18px;
+  padding:22px 18px;margin-bottom:13px;position:relative;overflow:hidden;
+  box-shadow:0 8px 28px rgba(52,152,219,0.08);
+}
+.support-hero::after{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:140px;height:140px;
+  background:radial-gradient(circle,rgba(52,152,219,0.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.support-eyebrow{
+  font-size:9px;font-weight:700;color:rgba(52,152,219,0.7);
+  letter-spacing:3px;text-transform:uppercase;margin-bottom:7px;
+  position:relative;z-index:1;display:flex;align-items:center;gap:6px;
+}
+.support-eyebrow::before{content:'>';color:rgba(52,152,219,0.45);}
+.ticket-card{
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:14px;padding:14px;margin-bottom:9px;
+}
+.ticket-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:20px;font-size:9px;font-weight:700;
+  letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px;
+}
+.ticket-badge.open{background:rgba(243,156,18,0.12);color:#f0b929;}
+.ticket-badge.closed{background:rgba(92,184,92,0.12);color:#7ed17e;}
+
+/* ── RANK LIST ── */
+.rank-list{display:flex;flex-direction:column;gap:9px;margin-bottom:11px;}
+.payout-pct-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 8px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:0.5px;margin-top:3px;
+}
+.payout-pct-badge.base{background:rgba(92,184,92,0.1);color:#7ed17e;}
+.payout-pct-badge.expert{background:rgba(229,160,32,0.12);color:#f0b929;}
+
+/* ── LESSON MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  z-index:2000;display:none;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.22s;
+}
+.modal-overlay.open{display:flex;opacity:1;pointer-events:all;}
+.modal-sheet{
+  width:100%;max-width:480px;
+  background:#121812;border:1px solid rgba(92,184,92,0.13);
+  border-radius:22px 22px 0 0;
+  padding:16px 16px 36px;
+  display:flex;flex-direction:column;gap:12px;
+  transform:translateY(100%);
+  transition:transform 0.28s cubic-bezier(0.34,1.4,0.64,1);
+  max-height:88vh;overflow-y:auto;
+  box-shadow:0 -8px 40px rgba(0,0,0,0.6);
+}
+.modal-overlay.open .modal-sheet{transform:translateY(0);}
+.modal-handle{width:34px;height:3px;background:#2a3a2a;border-radius:99px;margin:0 auto 4px;}
+.modal-title{
+  font-family:'Unbounded',sans-serif;font-size:18px;font-weight:700;
+  letter-spacing:-0.5px;color:var(--text);text-align:center;
+}
+.lesson-content{font-size:12px;color:var(--text-muted);line-height:1.8;margin-bottom:4px;}
+.lesson-content strong{color:var(--text);font-weight:600;}
+.lesson-rule{
+  background:rgba(56,130,184,0.05);border:1px solid rgba(56,130,184,0.13);
+  border-radius:10px;padding:11px 13px;font-size:11px;color:rgba(130,180,220,0.9);line-height:1.7;margin-top:4px;
+}
+
+/* ── SUPPORT MODAL ── */
+.support-modal .modal-sheet{background:#0e120e;}
+.input-field{
+  width:100%;padding:12px 13px;border-radius:10px;
+  border:1px solid rgba(255,255,255,0.07);
+  background:rgba(255,255,255,0.03);
+  font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);
+  outline:none;transition:border-color 0.2s;
+}
+.input-field:focus{border-color:rgba(92,184,92,0.4);background:rgba(92,184,92,0.03);}
+.input-field::placeholder{color:var(--text-dim);}
+textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
+
+/* ── BUTTONS ── */
+.btn-primary{
+  width:100%;padding:14px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,#5cb85c 0%,#3d8b3d 100%);
+  color:#000;font-family:'JetBrains Mono',monospace;
+  font-size:13px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 4px 18px rgba(92,184,92,0.3);
+  transition:transform 0.15s,box-shadow 0.15s;
+  letter-spacing:0.2px;margin-bottom:10px;
+}
+.btn-primary:active{transform:scale(0.97);}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;top:68px;left:50%;transform:translateX(-50%) translateY(-14px);
+  background:#1a211a;color:var(--text);
+  border:1px solid rgba(92,184,92,0.15);
+  padding:10px 17px;border-radius:10px;font-size:12px;font-weight:500;
+  z-index:9999;opacity:0;transition:opacity 0.22s,transform 0.22s;
+  white-space:nowrap;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.6);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── EXT LINK ── */
+.ext-link-row{
+  display:flex;align-items:center;gap:11px;
+  padding:12px 14px;border-radius:12px;
+  background:rgba(92,184,92,0.04);border:1px solid rgba(92,184,92,0.1);
+  cursor:pointer;transition:all 0.15s;margin-bottom:9px;text-decoration:none;
+}
+.ext-link-row:active{transform:scale(0.97);background:rgba(92,184,92,0.08);}
+.ext-link-icon{
+  width:36px;height:36px;border-radius:9px;
+  background:rgba(92,184,92,0.1);border:1px solid rgba(92,184,92,0.18);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;
+}
+.ext-link-text{flex:1;}
+.ext-link-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:1px;}
+.ext-link-sub{font-size:10px;color:var(--text-muted);}
+.ext-link-arrow{color:var(--text-dim);}
+
+.screen-title{
+  font-family:'Unbounded',sans-serif;font-size:24px;font-weight:700;
+  letter-spacing:-0.5px;color:var(--text);margin-bottom:13px;line-height:1;
+}
+
+/* ── ICON ANIMATIONS ── */
+.icon-check-ring{width:24px;height:24px;position:relative;}
+.check-ring{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(92,184,92,0.35);border-top-color:#7ed17e;position:absolute;top:1px;left:1px;animation:spinRing 3s linear infinite;}
+.check-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#7ed17e;}
+@keyframes spinRing{to{transform:rotate(360deg);}}
+
+.icon-pulse-dot{width:24px;height:24px;display:flex;align-items:center;justify-content:center;position:relative;}
+.pulse-dot-core{width:10px;height:10px;border-radius:50%;background:rgba(56,130,184,0.8);animation:pulseCore 2s ease-in-out infinite;}
+.pulse-dot-ring{width:20px;height:20px;border-radius:50%;border:1px dashed rgba(56,130,184,0.3);position:absolute;animation:orbitSpin 4s linear infinite;}
+@keyframes pulseCore{0%,100%{transform:scale(1);opacity:0.8;}50%{transform:scale(1.2);opacity:1;}}
+@keyframes orbitSpin{to{transform:rotate(360deg);}}
+
+.icon-tag{width:24px;height:24px;position:relative;animation:tagFloat 2.5s ease-in-out infinite;}
+@keyframes tagFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
+
+.icon-lock-anim{width:24px;height:24px;position:relative;}
+.lock-body-anim{width:14px;height:10px;background:rgba(139,92,246,0.18);border:1.5px solid rgba(139,92,246,0.45);border-radius:2px;position:absolute;bottom:2px;left:5px;animation:lockShk 4s ease-in-out infinite;}
+.lock-arch-anim{width:9px;height:6px;border:1.5px solid rgba(139,92,246,0.45);border-bottom:none;border-radius:5px 5px 0 0;position:absolute;bottom:12px;left:7.5px;animation:lockShk 4s ease-in-out infinite;}
+@keyframes lockShk{0%,90%,100%{transform:rotate(0);}92%{transform:rotate(-4deg);}94%{transform:rotate(4deg);}96%{transform:rotate(-2deg);}98%{transform:rotate(2deg);}}
+
+.icon-scroll-anim{width:24px;height:24px;position:relative;}
+.scroll-body{width:16px;height:18px;background:rgba(139,92,246,0.1);border:1.5px solid rgba(139,92,246,0.4);border-radius:3px;position:absolute;left:4px;top:3px;animation:scrollGlw 3s ease-in-out infinite;}
+.scroll-line1,.scroll-line2,.scroll-line3{position:absolute;height:1.5px;background:rgba(167,139,250,0.45);border-radius:1px;left:7px;}
+.scroll-line1{width:9px;top:8px;animation:scrollShim 2s ease-in-out infinite;}
+.scroll-line2{width:7px;top:11px;animation:scrollShim 2s ease-in-out infinite 0.2s;}
+.scroll-line3{width:8px;top:14px;animation:scrollShim 2s ease-in-out infinite 0.4s;}
+@keyframes scrollGlw{0%,100%{border-color:rgba(139,92,246,0.35);}50%{border-color:rgba(167,139,250,0.65);box-shadow:0 0 6px rgba(139,92,246,0.18);}}
+@keyframes scrollShim{0%,100%{opacity:0.35;}50%{opacity:0.85;}}
+
+/* ── CHART ── */
+.chart-wrap{
+  background:rgba(255,255,255,0.03);border:1px solid var(--border2);
+  border-radius:16px;padding:18px 16px 14px;margin-bottom:11px;
+}
+.chart-meta-row{display:flex;gap:16px;margin-bottom:14px;}
+.chart-stat{display:flex;flex-direction:column;gap:2px;}
+.chart-stat-val{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:var(--text);}
+.chart-stat-lbl{font-size:10px;color:var(--text-muted);}
+.chart-badge-pill{
+  margin-left:auto;align-self:flex-start;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;padding:4px 10px;font-size:10px;color:var(--text-muted);
+}
+
+::-webkit-scrollbar{display:none;}
+*{scrollbar-width:none;}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo" style="gap:0;background:rgba(10,18,10,0.85);border:1px solid rgba(92,184,92,0.22);border-radius:11px;padding:5px 12px 5px 8px;display:flex;align-items:center;gap:7px;">
+    <!-- TON icon -->
+    <svg width="22" height="22" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;filter:drop-shadow(0 0 6px rgba(92,184,92,0.5));">
+      <path fill="#5cb85c" d="M 50,80 Q 30,80 22,103 L 188,358 Q 194,370 200,370 Q 206,370 212,358 L 378,103 Q 370,80 350,80 Z"/>
+      <path fill="#0d0f0d" d="M 80,118 L 320,118 L 200,330 Z"/>
+      <path fill="#7ed17e" d="M 181,80 L 219,80 L 219,320 L 200,370 L 181,320 Z"/>
+    </svg>
+    <span style="font-family:'Unbounded',sans-serif;font-size:15px;font-weight:900;letter-spacing:2px;color:var(--accent2);filter:drop-shadow(0 0 8px rgba(92,184,92,0.45));">MARKET</span>
+  </div>
+  <div class="topbar-right">
+    <div class="user-pill" id="userPill" onclick="showScreen('profile')">
+      <div class="user-pill-avatar" id="pillAvatar">?</div>
+      <span class="user-pill-name" id="pillName"></span>
+    </div>
+  </div>
+</header>
+
+<div class="page-wrap">
+
+<!-- ═══════════════ HOME ═══════════════ -->
+<div class="screen active" id="screen-home">
+  <div class="balance-card">
+    <div class="balance-eyebrow">Баланс аккаунта</div>
+    <div id="balanceAmount" class="balance-amount">0 <span>TON</span></div>
+    <div id="balanceUsd" class="balance-usd">≈ $0.00 USD</div>
+  </div>
+
+  <div class="section-title">Lolz Market</div>
+  <a class="ext-link-row" href="https://lolz.live/market" target="_blank" rel="noopener">
+    <div class="ext-link-icon">🌐</div>
+    <div class="ext-link-text"><div class="ext-link-title">Lolz Market — сайт</div><div class="ext-link-sub">lolz.live/market</div></div>
+    <svg class="ext-link-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+  <a class="ext-link-row" href="https://t.me/lolzteam" target="_blank" rel="noopener">
+    <div class="ext-link-icon">✈️</div>
+    <div class="ext-link-text"><div class="ext-link-title">Telegram-канал</div><div class="ext-link-sub">@lolzteam</div></div>
+    <svg class="ext-link-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+
+  <!-- График прироста -->
+  <div class="chart-wrap">
+    <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Прирост пользователей</div>
+    <div class="chart-meta-row">
+      <div class="chart-stat"><div class="chart-stat-val">248k</div><div class="chart-stat-lbl">Всего пользователей</div></div>
+      <div class="chart-stat"><div class="chart-stat-val" style="color:#7ed17e;">+15%</div><div class="chart-stat-lbl">Рост за месяц</div></div>
+      <div class="chart-badge-pill">Lolz · 2024</div>
+    </div>
+    <canvas id="growthChart" height="160" style="display:block;width:100%;"></canvas>
+  </div>
+
+  <div class="section-title">Разделы</div>
+  <div class="home-grid">
+    <div class="home-card" style="border-color:rgba(56,130,184,0.14);" onclick="showScreen('training')">
+      <div class="hq-icon-wrap" style="background:rgba(56,130,184,0.09);border:1px solid rgba(56,130,184,0.18);">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#5caee0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
+      <div class="hq-label">Обучение</div><div class="hq-sub">Гайды по Market</div>
+    </div>
+    <div class="home-card" style="border-color:rgba(92,184,92,0.12);" onclick="showScreen('career')">
+      <div class="hq-icon-wrap" style="background:rgba(92,184,92,0.08);border:1px solid rgba(92,184,92,0.16);">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      </div>
+      <div class="hq-label">Карьера</div><div class="hq-sub">Ранги и рост</div>
+    </div>
+    <div class="home-card" style="border-color:rgba(229,160,32,0.12);" onclick="showScreen('top')">
+      <div class="hq-icon-wrap" style="background:rgba(229,160,32,0.08);border:1px solid rgba(229,160,32,0.16);">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#f0b929" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M17 7l-5-5-5 5M7 10.5V17h10v-6.5"/></svg>
+      </div>
+      <div class="hq-label">Топ</div><div class="hq-sub">Рейтинг продавцов</div>
+    </div>
+    <div class="home-card" style="border-color:rgba(52,152,219,0.12);" onclick="showScreen('support')">
+      <div class="hq-icon-wrap" style="background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.16);">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#5caee0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="hq-label">Поддержка</div><div class="hq-sub">Служба помощи</div>
+    </div>
+    <div class="home-card" style="grid-column:1/-1;border-color:rgba(139,92,246,0.12);" onclick="showScreen('profile')">
+      <div class="hq-icon-wrap" style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.16);">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>
+      </div>
+      <div class="hq-label">Профиль</div><div class="hq-sub">Статистика аккаунта</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ TRAINING ═══════════════ -->
+<div class="screen" id="screen-training">
+  <div class="training-hero">
+    <div class="training-eyebrow">Lolz Academy</div>
+    <div class="training-title">Обучение</div>
+    <div class="training-sub">Изучай гайды, расти на маркете. Каждый модуль — шаг к новому уровню.</div>
+    <div class="training-progress-bar"><div class="training-progress-fill" style="width:25%"></div></div>
+    <div class="training-progress-label">1 из 4 модулей завершено</div>
+  </div>
+
+  <div class="section-title">Модули</div>
+
+  <div class="module-card done" onclick="openLesson(0)">
+    <div class="module-icon green">
+      <div class="icon-check-ring"><div class="check-ring"></div><div class="check-inner"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+    </div>
+    <div class="module-info">
+      <div class="module-title">Введение в Lolz Market</div>
+      <div class="module-desc">Основы маркета, правила платформы, безопасность.</div>
+      <div class="module-meta"><span class="module-tag green">Завершён</span><span style="font-size:9px;color:var(--text-dim);">5 мин</span></div>
+    </div>
+    <div class="module-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7ed17e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+  </div>
+
+  <div class="module-card" onclick="openLesson(1)">
+    <div class="module-icon blue">
+      <div class="icon-pulse-dot"><div class="pulse-dot-ring"></div><div class="pulse-dot-core"></div></div>
+    </div>
+    <div class="module-info">
+      <div class="module-title">Система выплат TON</div>
+      <div class="module-desc">Как создавать сделки, методы ОТС и гарант, сроки.</div>
+      <div class="module-meta"><span class="module-tag blue">В процессе</span><span style="font-size:9px;color:var(--text-dim);">8 мин</span></div>
+    </div>
+    <div class="module-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg></div>
+  </div>
+
+  <div class="module-card" onclick="openLesson(2)">
+    <div class="module-icon gold">
+      <div class="icon-tag"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(229,160,32,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+    </div>
+    <div class="module-info">
+      <div class="module-title">Оценка аккаунтов</div>
+      <div class="module-desc">Как оценить, выставить и успешно продать аккаунт.</div>
+      <div class="module-meta"><span class="module-tag gold">Доступен</span><span style="font-size:9px;color:var(--text-dim);">10 мин</span></div>
+    </div>
+    <div class="module-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg></div>
+  </div>
+
+  <div class="module-card locked" onclick="showToast('🔒 Завершите предыдущие модули')">
+    <div class="module-icon purple">
+      <div class="icon-lock-anim"><div class="lock-arch-anim"></div><div class="lock-body-anim"></div></div>
+    </div>
+    <div class="module-info">
+      <div class="module-title">Продвинутые стратегии</div>
+      <div class="module-desc">Масштабирование, VIP-продажи, работа с гарантом.</div>
+      <div class="module-meta"><span class="module-tag" style="background:rgba(255,255,255,0.04);color:#3d4f3d;">Заблокирован</span></div>
+    </div>
+    <div class="module-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+  </div>
+
+  <div class="section-title" style="margin-top:5px;">Мануалы</div>
+  <div class="manual-card" onclick="openLesson(4)">
+    <div class="module-icon purple" style="border-color:rgba(139,92,246,0.18);">
+      <div class="icon-scroll-anim"><div class="scroll-body"></div><div class="scroll-line1"></div><div class="scroll-line2"></div><div class="scroll-line3"></div></div>
+    </div>
+    <div class="module-info">
+      <div class="module-title">Мануал ОТС</div>
+      <div class="module-desc">Полное руководство: от регистрации до первой сделки.</div>
+      <div class="module-meta"><span class="module-tag" style="background:rgba(139,92,246,0.1);color:#c4b5fd;">Мануал</span><span style="font-size:9px;color:var(--text-dim);">12 мин</span></div>
+    </div>
+    <div class="module-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+  </div>
+
+  <div class="section-title" style="margin-top:4px;">Внешние ресурсы</div>
+  <a class="ext-link-row" href="https://lolz.live/market" target="_blank" rel="noopener">
+    <div class="ext-link-icon">🌐</div>
+    <div class="ext-link-text"><div class="ext-link-title">Lolz Market</div><div class="ext-link-sub">lolz.live/market</div></div>
+    <svg class="ext-link-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+  <a class="ext-link-row" href="https://t.me/lolzteam" target="_blank" rel="noopener">
+    <div class="ext-link-icon">✈️</div>
+    <div class="ext-link-text"><div class="ext-link-title">Telegram-канал Lolz</div><div class="ext-link-sub">@lolzteam</div></div>
+    <svg class="ext-link-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+</div>
+
+<!-- ═══════════════ CAREER ═══════════════ -->
+<div class="screen" id="screen-career">
+  <div class="career-hero">
+    <div class="rank-badge-hero" id="currentRankBadge">Новичок</div>
+    <div style="height:10px;"></div>
+    <div class="career-title">Карьера</div>
+    <div class="career-sub" id="careerSubText">До следующего ранга: <strong style="color:var(--accent2);">5 сделок</strong>. Расти с каждой продажей.</div>
+    <div class="career-xp-bar"><div class="career-xp-fill" id="careerXpFill" style="width:0%"></div></div>
+    <div class="career-xp-label" id="careerXpLabel">0 / 5 сделок</div>
+  </div>
+  <div class="section-title">Система рангов</div>
+  <div class="rank-list" id="rankList"></div>
+</div>
+
+<!-- ═══════════════ TOP ═══════════════ -->
+<div class="screen" id="screen-top">
+  <div class="top-hero">
+    <div class="top-eyebrow">Lolz Leaderboard</div>
+    <div class="top-hero-title">Топ продавцов</div>
+    <div class="top-hero-sub">Рейтинг обновляется после каждой сделки. Войди в ТОП!</div>
+  </div>
+  <div class="card" style="padding:18px 13px 14px;">
+    <div class="section-title" style="margin-bottom:14px;">Пьедестал</div>
+    <div class="podium-wrap" id="podiumWrap"></div>
+  </div>
+  <div class="card" style="padding:13px 15px;">
+    <div class="section-title" style="margin-bottom:11px;">Полный рейтинг</div>
+    <div id="leaderboardList"></div>
+  </div>
+  <div style="text-align:center;font-size:10px;color:var(--text-dim);margin-top:4px;padding-bottom:8px;">Обновлено: только что</div>
+</div>
+
+<!-- ═══════════════ SUPPORT ═══════════════ -->
+<div class="screen" id="screen-support">
+  <div class="support-hero">
+    <div class="support-eyebrow">Lolz Support</div>
+    <div style="font-family:'Unbounded',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;position:relative;z-index:1;margin-bottom:3px;">Поддержка</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.38);position:relative;z-index:1;line-height:1.5;">Служба поддержки Lolz Market · 24/7</div>
+  </div>
+
+  <div style="display:flex;gap:9px;margin-bottom:11px;">
+    <button id="tab-open-btn" onclick="switchSupportTab('open')" style="flex:1;padding:10px;border-radius:999px;border:1px solid rgba(52,152,219,0.6);background:rgba(52,152,219,0.15);color:#5caee0;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;">Открытые</button>
+    <button id="tab-closed-btn" onclick="switchSupportTab('closed')" style="flex:1;padding:10px;border-radius:999px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;">Закрытые</button>
+  </div>
+
+  <div id="tab-open-content">
+    <div class="card" style="text-align:center;padding:32px 16px;">
+      <div style="font-size:28px;margin-bottom:8px;">💬</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">Активных обращений нет</div>
+      <div style="font-size:11px;color:var(--text-muted);">Создайте обращение — поддержка ответит</div>
+    </div>
+  </div>
+  <div id="tab-closed-content" style="display:none;">
+    <div class="card" style="text-align:center;padding:32px 16px;">
+      <div style="font-size:28px;margin-bottom:8px;">📋</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">Закрытых обращений нет</div>
+      <div style="font-size:11px;color:var(--text-muted);">Завершённые обращения появятся здесь</div>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="openSupportModal()" style="margin-top:4px;">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Новое обращение
+  </button>
+
+  <div class="section-title" style="margin-top:4px;">Контакты</div>
+  <a class="ext-link-row" href="https://lolz.live/market" target="_blank" rel="noopener">
+    <div class="ext-link-icon">🌐</div>
+    <div class="ext-link-text"><div class="ext-link-title">Lolz Market</div><div class="ext-link-sub">lolz.live/market</div></div>
+    <svg class="ext-link-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+  <a class="ext-link-row" href="https://t.me/lolzteam" target="_blank" rel="noopener">
+    <div class="ext-link-icon">✈️</div>
+    <div class="ext-link-text"><div class="ext-link-title">Telegram-канал</div><div class="ext-link-sub">@lolzteam</div></div>
+    <svg class="ext-link-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+</div>
+
+<!-- ═══════════════ PROFILE ═══════════════ -->
+<div class="screen" id="screen-profile">
+  <div class="profile-hero">
+    <div class="profile-avatar" id="profileAvatarLarge">?</div>
+    <div class="profile-name" id="profileNameLarge">Загрузка...</div>
+    <div class="profile-username" id="profileUsernameLarge">@username</div>
+    <div class="profile-badge">✦ Активный участник</div>
+  </div>
+
+  <div class="profile-stats-row">
+    <div class="profile-stat-card">
+      <div class="profile-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(92,184,92,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="profile-stat-value" id="statTotalTon">—</div>
+      <div class="profile-stat-label">Сумма TON</div>
+    </div>
+    <div class="profile-stat-card">
+      <div class="profile-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(92,184,92,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+      <div class="profile-stat-value" id="statProfits">0</div>
+      <div class="profile-stat-label">Сделки</div>
+    </div>
+    <div class="profile-stat-card">
+      <div class="profile-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(92,184,92,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+      <div class="profile-stat-value">0</div>
+      <div class="profile-stat-label">Рефералы</div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:13px 15px;margin-bottom:11px;">
+    <div class="profile-row">
+      <div class="profile-row-left"><div class="profile-row-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg></div><div class="profile-row-label">ID</div></div>
+      <div class="profile-row-value accent" id="profileId">—</div>
+    </div>
+    <div class="profile-row">
+      <div class="profile-row-left"><div class="profile-row-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="profile-row-label">Ранг</div></div>
+      <div class="profile-row-value accent" id="profileRankRow">Новичок</div>
+    </div>
+    <div class="profile-row">
+      <div class="profile-row-left"><div class="profile-row-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><div class="profile-row-label">Статус</div></div>
+      <div class="profile-row-value" style="color:#7ed17e;font-weight:700;">✦ Активен</div>
+    </div>
+    <div class="profile-row">
+      <div class="profile-row-left"><div class="profile-row-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="profile-row-label">Регистрация</div></div>
+      <div class="profile-row-value">01.01.2026</div>
+    </div>
+  </div>
+
+  <div class="section-title">Lolz Market</div>
+  <a class="ext-link-row" href="https://lolz.live/market" target="_blank" rel="noopener">
+    <div class="ext-link-icon">🌐</div>
+    <div class="ext-link-text"><div class="ext-link-title">Открыть Market</div><div class="ext-link-sub">lolz.live/market</div></div>
+    <svg class="ext-link-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+  <a class="ext-link-row" href="https://t.me/lolzteam" target="_blank" rel="noopener">
+    <div class="ext-link-icon">✈️</div>
+    <div class="ext-link-text"><div class="ext-link-title">Telegram-канал</div><div class="ext-link-sub">@lolzteam</div></div>
+    <svg class="ext-link-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+</div>
+
+</div><!-- /page-wrap -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="nav-item active" id="nav-home" onclick="showScreen('home')">
+      <div class="nav-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 4l9 8"/><path d="M9 21V12h6v9"/></svg></div>
+      <span class="nav-label">Главная</span>
+    </button>
+    <button class="nav-item" id="nav-training" onclick="showScreen('training')">
+      <div class="nav-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+      <span class="nav-label">Обучение</span>
+    </button>
+    <button class="nav-item" id="nav-career" onclick="showScreen('career')">
+      <div class="nav-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+      <span class="nav-label">Карьера</span>
+    </button>
+    <button class="nav-item" id="nav-top" onclick="showScreen('top')">
+      <div class="nav-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M17 7l-5-5-5 5M7 10.5V17h10v-6.5"/></svg></div>
+      <span class="nav-label">Топ</span>
+    </button>
+    <button class="nav-item" id="nav-support" onclick="showScreen('support')">
+      <div class="nav-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <span class="nav-label">Чат</span>
+    </button>
+    <button class="nav-item" id="nav-profile" onclick="showScreen('profile')">
+      <div class="nav-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg></div>
+      <span class="nav-label">Профиль</span>
+    </button>
+  </div>
+</nav>
+
+<!-- LESSON MODAL -->
+<div class="modal-overlay" id="lessonModal" onclick="closeModalIf(event,'lessonModal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="lessonTitle">Урок</div>
+    <div class="lesson-content" id="lessonContent"></div>
+    <div class="lesson-rule" id="lessonRule" style="display:none;"></div>
+    <button class="btn-primary" onclick="closeModal('lessonModal')" style="margin-bottom:0;">Понятно ✓</button>
+  </div>
+</div>
+
+<!-- SUPPORT MODAL -->
+<div class="modal-overlay support-modal" id="supportModal" onclick="closeModalIf(event,'supportModal')">
+  <div class="modal-sheet" style="background:#0e120e;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Новое обращение</div>
+    <textarea class="input-field" id="supportTextField" placeholder="Опишите ваш вопрос подробно..."></textarea>
+    <button class="btn-primary" onclick="submitSupport()" style="margin-bottom:0;">Отправить</button>
+  </div>
+</div>
+
+<!-- SPLASH -->
+<div id="lolz-splash" style="position:fixed;inset:0;z-index:99999;background:#0d0f0d;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;">
+  <canvas id="splashBg" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+  <div style="position:relative;z-index:2;margin-bottom:32px;display:flex;flex-direction:column;align-items:center;gap:6px;">
+    <div style="font-family:'Unbounded',sans-serif;font-size:54px;font-weight:900;letter-spacing:-2px;
+      background:linear-gradient(135deg,#7ed17e 0%,#5cb85c 50%,#3d8b3d 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      filter:drop-shadow(0 0 20px rgba(92,184,92,0.4));">Lolz</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:rgba(92,184,92,0.45);">MARKET</div>
+  </div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px;">
+    <div style="width:180px;height:2px;background:rgba(92,184,92,0.1);border-radius:2px;overflow:hidden;">
+      <div id="lolzProgressFill" style="height:100%;width:0%;background:linear-gradient(90deg,#3d8b3d,#5cb85c,#7ed17e);border-radius:2px;transition:width 0.07s linear;"></div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(92,184,92,0.35);">Загрузка...</div>
+  </div>
+</div>
+<style>
+#lolz-splash.lolz-hidden{opacity:0!important;visibility:hidden!important;pointer-events:none!important;transition:opacity 0.5s ease,visibility 0.5s!important;}
+</style>
+
+<script>
+/* ─── TELEGRAM ─── */
+const tg = window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+const user     = tg?.initDataUnsafe?.user || {};
+const uid      = String(user.id || '000000');
+const fullName = [user.first_name,user.last_name].filter(Boolean).join(' ') || 'Пользователь';
+const username = user.username ? '@'+user.username : '(без username)';
+const initials = ((user.first_name?.[0]||'')+(user.last_name?.[0]||'')).toUpperCase()||'?';
+
+/* ─── STORAGE ─── */
+function getMyData(){try{return JSON.parse(localStorage.getItem('lolz_user_'+uid)||'{}')}catch{return {}}}
+function saveMyData(o){localStorage.setItem('lolz_user_'+uid,JSON.stringify(o))}
+
+/* ─── RANKS ─── */
+const RANKS=[
+  {name:'Новичок',   min:0,  payout:60,colorHex:'#7ed17e',accentRaw:'92,184,92',
+   desc:'Первый шаг на Lolz Market. Изучаешь платформу, проводишь первые сделки.',
+   perks:['Базовые сделки','Модули обучения','Поддержка куратора','Выплата 60%'],
+   icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`},
+  {name:'Стажёр',   min:5,  payout:60,colorHex:'#5caee0',accentRaw:'56,130,184',
+   desc:'Первые успешные сделки позади. Открываются новые инструменты маркета.',
+   perks:['Приоритет в очереди','Расширенная история','Аналитика сделок','Выплата 60%'],
+   icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`},
+  {name:'Работник', min:15, payout:60,colorHex:'#f0b929',accentRaw:'229,160,32',
+   desc:'Стабильный продавец с подтверждённым опытом. Лимиты увеличены.',
+   perks:['Увеличенный лимит','Быстрая ОТС-обработка','Метка доверия','Выплата 60%'],
+   icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`},
+  {name:'Специалист',min:30,payout:60,colorHex:'#a78bfa',accentRaw:'139,92,246',
+   desc:'Элита платформы. Крупные сделки, персональный гарант, VIP-очередь.',
+   perks:['Персональный гарант','VIP-очередь','Метка "Специалист"','Выплата 60%'],
+   icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/><circle cx="12" cy="12" r="3"/></svg>`},
+  {name:'Эксперт',  min:60, payout:65,colorHex:'#5cb85c',accentRaw:'92,184,92',
+   desc:'Топ-уровень. Максимальные лимиты, прямой доступ к админам, ставка 65%.',
+   perks:['Ставка 65%','Макс. лимиты','Прямой доступ к админам','Особая метка в топе'],
+   icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`},
+  {name:'Мастер',   min:100,payout:65,colorHex:'#ffd700',accentRaw:'255,215,0',
+   desc:'Высший ранг Lolz. Легенда маркета. Ставка 65% зафиксирована навсегда.',
+   perks:['Ставка 65% навсегда','Статус "Легенда"','Индивидуальные условия','Участие в развитии'],
+   icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"/><path d="M5 20h14"/></svg>`},
+];
+function getRank(p){let r=RANKS[0];for(const x of RANKS){if(p>=x.min)r=x;}return r;}
+function getNextRank(p){for(const r of RANKS){if(p<r.min)return r;}return null;}
+
+/* ─── INIT UI ─── */
+document.getElementById('pillAvatar').textContent   = initials;
+document.getElementById('pillName').textContent     = user.first_name||'';
+document.getElementById('profileAvatarLarge').textContent = initials;
+document.getElementById('profileNameLarge').textContent   = fullName;
+document.getElementById('profileUsernameLarge').textContent = user.username?'@'+user.username:'@user';
+document.getElementById('profileId').textContent   = uid;
+
+if(user.photo_url){
+  const makeImg=()=>{const i=document.createElement('img');i.src=user.photo_url;return i;};
+  const pa=document.getElementById('pillAvatar');
+  pa.textContent='';pa.appendChild(makeImg());
+  const la=document.getElementById('profileAvatarLarge');
+  la.textContent='';la.appendChild(makeImg());
+}
+
+/* ─── STATS ─── */
+function refreshStats(){
+  const data    = getMyData();
+  const profits = data.profits  ||0;
+  const total   = data.totalTon ||0;
+  document.getElementById('balanceAmount').innerHTML=(total>0?total.toFixed(2):'0')+' <span>TON</span>';
+  document.getElementById('balanceUsd').textContent='≈ $'+(total*1.9).toFixed(2)+' USD';
+  document.getElementById('statProfits').textContent=profits;
+  document.getElementById('statTotalTon').textContent=total>0?total.toFixed(2):'—';
+  const rank=getRank(profits);
+  const next=getNextRank(profits);
+  document.getElementById('profileRankRow').textContent=rank.name;
+  const badge=document.getElementById('currentRankBadge');
+  badge.innerHTML=`<span style="color:${rank.colorHex};margin-right:5px;">${rank.icon}</span>${rank.name}`;
+  badge.style.borderColor=`rgba(${rank.accentRaw},0.3)`;
+  badge.style.background=`rgba(${rank.accentRaw},0.08)`;
+  badge.style.color=rank.colorHex;
+  if(next){
+    const pct=Math.min(100,((profits-rank.min)/(next.min-rank.min))*100);
+    document.getElementById('careerXpFill').style.width=pct+'%';
+    document.getElementById('careerXpLabel').textContent=profits+' / '+next.min+' сделок';
+    document.getElementById('careerSubText').innerHTML='До следующего ранга: <strong style="color:var(--accent2);">'+(next.min-profits)+' сделок</strong>. Расти с каждой продажей.';
+  }else{
+    document.getElementById('careerXpFill').style.width='100%';
+    document.getElementById('careerXpLabel').textContent='Максимальный ранг достигнут';
+    document.getElementById('careerSubText').textContent='Ты — Мастер Lolz Market!';
+  }
+  renderRankList(profits);
+}
+
+/* ─── RANK LIST ─── */
+function renderRankList(profits){
+  const list=document.getElementById('rankList');
+  list.innerHTML='';
+  RANKS.forEach((r,idx)=>{
+    const cur=getRank(profits);
+    const isCurrent=cur.min===r.min;
+    const isUnlocked=profits>=r.min;
+    const a=r.accentRaw;
+    const next=getNextRank(profits);
+    const pct=isCurrent&&next?Math.min(100,((profits-r.min)/(next.min-r.min))*100):isUnlocked?100:0;
+    const perks=r.perks.map(p=>`<div style="display:flex;align-items:flex-start;gap:7px;padding:4px 0;"><div style="width:4px;height:4px;border-radius:50%;background:rgba(${a},0.65);flex-shrink:0;margin-top:6px;"></div><span style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.5;">${p}</span></div>`).join('');
+    const payBadge=r.payout>=65?`<span class="payout-pct-badge expert">${r.payout}%</span>`:`<span class="payout-pct-badge base">${r.payout}%</span>`;
+    const card=document.createElement('div');
+    card.style.cssText=`background:${isUnlocked?`rgba(${a},0.04)`:'rgba(255,255,255,0.015)'};border:1px solid ${isCurrent?`rgba(${a},0.3)`:isUnlocked?`rgba(${a},0.1)`:'rgba(255,255,255,0.04)'};border-radius:14px;margin-bottom:9px;overflow:hidden;${!isUnlocked?'opacity:0.4;':''}`;
+    card.innerHTML=`
+      <div class="rank-card-hdr" data-idx="${idx}" style="display:flex;align-items:center;gap:12px;padding:14px;cursor:pointer;">
+        <div style="width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${isUnlocked?`rgba(${a},0.08)`:'rgba(255,255,255,0.02)'};border:1px solid ${isUnlocked?`rgba(${a},0.16)`:'rgba(255,255,255,0.04)'};color:${isUnlocked?r.colorHex:'#2e3e2e'};">${r.icon}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:2px;">
+            <span style="font-size:14px;font-weight:700;color:${isUnlocked?'#e8f0e8':'#3d4f3d'};font-family:'Unbounded',sans-serif;">${r.name}</span>
+            ${isCurrent?`<span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(${a},0.12);color:${r.colorHex};letter-spacing:0.5px;text-transform:uppercase;">Текущий</span>`:isUnlocked?`<span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(255,255,255,0.04);color:#3d4f3d;">✓</span>`:`<span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(255,255,255,0.03);color:#3d4f3d;">🔒 ${r.min}</span>`}
+            ${payBadge}
+          </div>
+          <div style="font-size:10px;color:#3d4f3d;">${r.min===0?'Стартовый ранг':'от '+r.min+' сделок'}</div>
+          ${isCurrent?`<div style="margin-top:7px;"><div style="height:2.5px;background:rgba(255,255,255,0.04);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${pct.toFixed(0)}%;background:${r.colorHex};border-radius:99px;opacity:0.7;"></div></div></div>`:''}
+        </div>
+        <div class="rank-chev" data-idx="${idx}" style="color:#2e3e2e;transition:transform 0.25s;flex-shrink:0;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="rank-body" data-idx="${idx}" style="max-height:0;overflow:hidden;transition:max-height 0.32s cubic-bezier(0.4,0,0.2,1);">
+        <div style="padding:0 14px 18px;">
+          <div style="height:1px;background:rgba(255,255,255,0.04);margin-bottom:12px;"></div>
+          <p style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.75;margin-bottom:12px;">${r.desc}</p>
+          <div style="background:rgba(${a},0.06);border:1px solid rgba(${a},0.15);border-radius:10px;padding:11px 13px;margin-bottom:12px;display:flex;align-items:center;gap:9px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${r.colorHex}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <div><div style="font-size:12px;font-weight:700;color:${r.colorHex};">${r.payout}% от суммы сделки</div><div style="font-size:10px;color:rgba(255,255,255,0.3);">Ставка начисления</div></div>
+          </div>
+          <div style="font-size:9px;font-weight:700;color:rgba(${a},0.5);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;">Привилегии</div>
+          ${perks}
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+  list.querySelectorAll('.rank-card-hdr').forEach(hdr=>{
+    hdr.addEventListener('click',function(){
+      const idx=this.dataset.idx;
+      const body=list.querySelector(`.rank-body[data-idx="${idx}"]`);
+      const chev=list.querySelector(`.rank-chev[data-idx="${idx}"]`);
+      const isOpen=body.style.maxHeight&&body.style.maxHeight!=='0px';
+      list.querySelectorAll('.rank-body').forEach(b=>b.style.maxHeight='0');
+      list.querySelectorAll('.rank-chev').forEach(c=>c.style.transform='rotate(0deg)');
+      if(!isOpen){body.style.maxHeight=body.scrollHeight+150+'px';chev.style.transform='rotate(180deg)';}
+    });
+  });
+  const ci=RANKS.findIndex(r=>r.min===getRank(profits).min);
+  setTimeout(()=>{
+    const b=list.querySelector(`.rank-body[data-idx="${ci}"]`);
+    const c=list.querySelector(`.rank-chev[data-idx="${ci}"]`);
+    if(b)b.style.maxHeight=b.scrollHeight+150+'px';
+    if(c)c.style.transform='rotate(180deg)';
+  },120);
+}
+
+/* ─── LEADERBOARD ─── */
+const AV_COLORS=['background:rgba(92,184,92,0.12);color:#7ed17e;','background:rgba(229,160,32,0.1);color:#f0b929;','background:rgba(56,130,184,0.1);color:#5caee0;','background:rgba(139,92,246,0.1);color:#a78bfa;','background:rgba(92,184,92,0.08);color:#a8e6a8;'];
+// Static leaderboard data
+const STATIC_BOARD=[
+  {uid:'1',username:'@aaaa',   full_name:'Алексей',profits:122,total_ton:12922},
+  {uid:'2',username:'@galarde',full_name:'Галарде',profits:98, total_ton:10433},
+  {uid:'3',username:'@lunssss',full_name:'Лунс',   profits:87, total_ton:10211},
+  {uid:'4',username:'@mrfrog', full_name:'MrFrog',  profits:76, total_ton:9730},
+  {uid:'5',username:'@surfer', full_name:'Сёрфер',  profits:65, total_ton:8543},
+  {uid:'6',username:'@easblox',full_name:'Eасблокс',profits:54, total_ton:6654},
+  {uid:'7',username:'@pudgy',  full_name:'Пуджи',   profits:49, total_ton:6071},
+  {uid:'8',username:'@nickkapernick',full_name:'Ник',profits:38,total_ton:4733},
+  {uid:'9',username:'@wawww',  full_name:'Вавв',    profits:33, total_ton:4521},
+  {uid:'10',username:'@sega_megaa',full_name:'Сега', profits:28,total_ton:3803},
+];
+
+function avatarHtml(e,st,cls){
+  const ini=(e.full_name||e.username||'?')[0].toUpperCase();
+  return `<div class="${cls}" style="${st}">${ini}</div>`;
+}
+
+function renderLeaderboard(){
+  const podium=document.getElementById('podiumWrap');
+  const listEl=document.getElementById('leaderboardList');
+  const board=STATIC_BOARD;
+  podium.innerHTML='';
+  const positions=[{idx:1,cls:'p2'},{idx:0,cls:'p1'},{idx:2,cls:'p3'}];
+  positions.forEach(pos=>{
+    const e=board[pos.idx];
+    const slot=document.createElement('div');
+    slot.className='podium-slot';
+    if(!e){slot.innerHTML=`<div style="height:48px;"></div><div class="podium-name" style="color:#2e3e2e;">—</div><div class="podium-ton" style="color:#2e3e2e;">0 TON</div><div class="podium-step ${pos.cls}" style="opacity:0.18;"><div class="podium-rank-num">${pos.idx+1}</div></div>`;}
+    else{
+      const st=AV_COLORS[pos.idx%AV_COLORS.length];
+      const tC=pos.idx===0?'rgba(255,215,0,0.75)':pos.idx===1?'rgba(192,192,192,0.65)':'rgba(205,127,50,0.65)';
+      const name=(e.full_name||e.username||'?').split(' ')[0];
+      slot.innerHTML=`${avatarHtml(e,st,'podium-avatar-top')}<div class="podium-name">${name}</div><div class="podium-ton" style="color:${tC};">${Number(e.total_ton).toFixed(1)} TON</div><div class="podium-step ${pos.cls}"><div class="podium-rank-num">${pos.idx+1}</div></div>`;
+    }
+    podium.appendChild(slot);
+  });
+  board.forEach((e,i)=>{
+    const isMe=e.uid===uid;
+    const item=document.createElement('div');
+    item.className='leader-item'+(isMe?' me':'');
+    const st=AV_COLORS[i%AV_COLORS.length];
+    const name=e.full_name||e.username||'Пользователь';
+    const rank=getRank(e.profits);
+    item.innerHTML=`<div class="leader-rank">${i+1}</div>${avatarHtml(e,st,'leader-avatar')}<div class="leader-info"><div class="leader-name">${name}${isMe?' <span style="font-size:8px;color:var(--accent);font-weight:700;">ВЫ</span>':''}</div><div class="leader-meta">${rank.name} · ${e.profits} сделок</div></div><div class="leader-right"><div class="leader-ton">${Number(e.total_ton).toFixed(1)} TON</div><div class="leader-count">${e.profits} сделок</div></div>`;
+    listEl.appendChild(item);
+  });
+}
+
+/* ─── SUPPORT ─── */
+let supportTickets=[];
+function loadTickets(){try{supportTickets=JSON.parse(localStorage.getItem('lolz_tickets_'+uid)||'[]');}catch{supportTickets=[];}}
+function saveTickets(){localStorage.setItem('lolz_tickets_'+uid,JSON.stringify(supportTickets));}
+
+function renderTickets(){
+  const open  =supportTickets.filter(t=>t.status==='open');
+  const closed=supportTickets.filter(t=>t.status==='closed');
+  function card(t,isClosed){
+    const badge=isClosed?`<span class="ticket-badge closed">Закрыто</span>`:`<span class="ticket-badge open">Открыто</span>`;
+    const replies=(t.replies||[]).map(r=>`<div style="background:rgba(52,152,219,0.07);border-left:3px solid #5caee0;border-radius:0 8px 8px 0;padding:8px 12px;margin-top:6px;font-size:11px;color:var(--text-muted);line-height:1.5;">💬 <strong style="color:var(--text);">Ответ:</strong> ${r}</div>`).join('');
+    return `<div class="ticket-card">${badge}<div style="font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">#${t.id}</div><div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:6px;">${t.text}</div>${replies}<div style="font-size:10px;color:var(--text-dim);margin-top:6px;">${t.date}</div></div>`;
+  }
+  function empty(icon,title,sub){return `<div class="card" style="text-align:center;padding:32px 16px;"><div style="font-size:28px;margin-bottom:8px;">${icon}</div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">${title}</div><div style="font-size:11px;color:var(--text-muted);">${sub}</div></div>`;}
+  document.getElementById('tab-open-content').innerHTML  = open.length  ? open.map(t=>card(t,false)).join('') : empty('💬','Активных обращений нет','Создайте обращение — поддержка ответит');
+  document.getElementById('tab-closed-content').innerHTML = closed.length ? closed.map(t=>card(t,true)).join('') : empty('📋','Закрытых обращений нет','Завершённые обращения появятся здесь');
+}
+
+function switchSupportTab(tab){
+  const isOpen=tab==='open';
+  document.getElementById('tab-open-content').style.display   = isOpen?'block':'none';
+  document.getElementById('tab-closed-content').style.display = isOpen?'none':'block';
+  const ob=document.getElementById('tab-open-btn');
+  const cb=document.getElementById('tab-closed-btn');
+  ob.style.background=isOpen?'rgba(52,152,219,0.15)':'transparent';
+  ob.style.borderColor=isOpen?'rgba(52,152,219,0.6)':'rgba(255,255,255,0.1)';
+  ob.style.color=isOpen?'#5caee0':'var(--text-muted)';
+  cb.style.background=!isOpen?'rgba(92,184,92,0.12)':'transparent';
+  cb.style.borderColor=!isOpen?'rgba(92,184,92,0.4)':'rgba(255,255,255,0.1)';
+  cb.style.color=!isOpen?'#7ed17e':'var(--text-muted)';
+}
+
+function openSupportModal(){document.getElementById('supportTextField').value='';document.getElementById('supportModal').classList.add('open');}
+function submitSupport(){
+  const text=document.getElementById('supportTextField').value.trim();
+  if(!text)return;
+  const ticket={id:Date.now(),text,status:'open',replies:[],date:new Date().toLocaleDateString('ru-RU')};
+  supportTickets.push(ticket);saveTickets();renderTickets();
+  closeModal('supportModal');
+  showToast('✅ Обращение отправлено');
+}
+
+/* ─── NAV ─── */
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  const nav=document.getElementById('nav-'+name);
+  if(nav)nav.classList.add('active');
+  window.scrollTo(0,0);
+  if(['profile','career','home'].includes(name))refreshStats();
+  if(name==='top')renderLeaderboard();
+  if(name==='support'){loadTickets();renderTickets();}
+}
+
+/* ─── MODALS ─── */
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function closeModalIf(e,id){if(e.target===document.getElementById(id))closeModal(id);}
+
+/* ─── LESSONS ─── */
+const LESSONS=[
+  {title:'Введение в Lolz Market',content:`<strong>Lolz Market</strong> — крупнейший маркетплейс аккаунтов и цифровых активов в Рунете.<br><br>Здесь ты продаёшь аккаунты, получаешь выплаты в TON и растёшь по карьерной лестнице. Каждая успешная сделка = 1 профит в профиле.`,rule:'Правило: работай только с реальными аккаунтами. Фейк = блок.'},
+  {title:'Система выплат TON',content:`<strong>ОТС Бот</strong> — автоматическая обработка, быстро.<br><br><strong>Живой гарант</strong> — для крупных сделок.<br><br>После отправки заявки администратор нажимает "Выплатить" — TON поступает на твой адрес. Ставка зависит от ранга: <strong>60%</strong> до Специалиста, <strong>65%</strong> с Эксперта.`,rule:'Всегда указывай правильный TON-адрес.'},
+  {title:'Оценка аккаунтов',content:`<strong>Как правильно выставить аккаунт:</strong><br><br>1. Укажи реальные данные аккаунта<br>2. Ссылку вставляй в поле заявки<br>3. Итоговая цена зависит от категории и активности<br><br>До <strong>20 ссылок</strong> в одной заявке. Каждую — с новой строки.`,rule:'Спам-заявки = блокировка без амнистии.'},
+  {title:'Продвинутые стратегии',content:'Доступно после завершения модулей 1–3.',rule:'Заблокировано.'},
+  {title:'Мануал ОТС',content:`<div style="margin-bottom:14px;"><div style="font-size:15px;font-weight:700;color:#a78bfa;margin-bottom:3px;">@LumaEnBot</div><div style="font-size:14px;font-weight:700;color:#e8f0e8;">ОТС с мини-аппом.</div></div><p style="margin-bottom:12px;">Полный функционал: открутка сделок в мини-аппе, поиск сделок, поддержка через тикеты.</p><div style="font-size:12px;font-weight:700;color:#e8f0e8;margin-bottom:5px;">Логика тикетов:</div><p style="margin-bottom:12px;">Вопрос → Статус открытый → Ответ → Статус закрытый.</p><div style="font-size:12px;font-weight:700;color:#e8f0e8;margin-bottom:5px;">6 валют:</div><p>TON, Тенге, Доллар, Рубль, Гривна, Евро.</p>`,rule:null},
+];
+function openLesson(idx){
+  const L=LESSONS[idx];
+  document.getElementById('lessonTitle').textContent=L.title;
+  document.getElementById('lessonContent').innerHTML=L.content;
+  const rEl=document.getElementById('lessonRule');
+  if(L.rule){rEl.textContent=L.rule;rEl.style.display='block';}else rEl.style.display='none';
+  document.getElementById('lessonModal').classList.add('open');
+}
+
+/* ─── TOAST ─── */
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ─── CHART ─── */
+function drawChart(){
+  const canvas=document.getElementById('growthChart');
+  if(!canvas)return;
+  const parent=canvas.parentElement;
+  const W=parent.offsetWidth-32;
+  if(!W||W<=0){setTimeout(drawChart,200);return;}
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=W*dpr;canvas.height=160*dpr;
+  canvas.style.width=W+'px';canvas.style.height='160px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  const data=[50,800,3200,8500,18000,35000,58000,90000,130000,175000,215000,248000];
+  const labels=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+  const maxVal=250000;
+  const padL=42,padR=8,padT=8,padB=22;
+  const cW=W-padL-padR,cH=160-padT-padB;
+  ctx.clearRect(0,0,W,160);
+  [50000,100000,150000,200000,250000].forEach(v=>{
+    const y=padT+cH-(v/maxVal)*cH;
+    ctx.beginPath();ctx.strokeStyle='rgba(92,184,92,0.06)';ctx.lineWidth=1;
+    ctx.moveTo(padL,y);ctx.lineTo(padL+cW,y);ctx.stroke();
+    ctx.font='bold 8px JetBrains Mono,monospace';ctx.fillStyle='rgba(92,184,92,0.35)';ctx.textAlign='right';
+    ctx.fillText((v/1000)+'k',padL-3,y+3);
+  });
+  const pts=data.map((v,i)=>({x:padL+(i/(data.length-1))*cW,y:padT+cH-(v/maxVal)*cH}));
+  const grad=ctx.createLinearGradient(0,padT,0,padT+cH);
+  grad.addColorStop(0,'rgba(92,184,92,0.25)');grad.addColorStop(1,'rgba(92,184,92,0)');
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++){const cx=(pts[i-1].x+pts[i].x)/2;ctx.bezierCurveTo(cx,pts[i-1].y,cx,pts[i].y,pts[i].x,pts[i].y);}
+  ctx.lineTo(pts[pts.length-1].x,padT+cH);ctx.lineTo(pts[0].x,padT+cH);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++){const cx=(pts[i-1].x+pts[i].x)/2;ctx.bezierCurveTo(cx,pts[i-1].y,cx,pts[i].y,pts[i].x,pts[i].y);}
+  ctx.strokeStyle='#5cb85c';ctx.lineWidth=2;ctx.stroke();
+  pts.forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,i===pts.length-1?5:2.5,0,Math.PI*2);
+    ctx.fillStyle=i===pts.length-1?'#5cb85c':'rgba(92,184,92,0.6)';ctx.fill();
+    if(i===pts.length-1){ctx.beginPath();ctx.arc(p.x,p.y,8,0,Math.PI*2);ctx.fillStyle='rgba(92,184,92,0.15)';ctx.fill();}
+  });
+  ctx.textAlign='center';ctx.font='8px JetBrains Mono,monospace';ctx.fillStyle='rgba(92,184,92,0.3)';
+  labels.forEach((l,i)=>{const x=padL+(i/(labels.length-1))*cW;ctx.fillText(l,x,padT+cH+14);});
+}
+window.addEventListener('load',()=>setTimeout(drawChart,100));
+window.addEventListener('resize',drawChart);
+
+/* ─── BOOT ─── */
+refreshStats();
+loadTickets();
+
+/* ─── SPLASH ─── */
+(function(){
+  var sp=document.getElementById('lolz-splash');
+  var fill=document.getElementById('lolzProgressFill');
+  var DUR=1800,start=performance.now(),done=false;
+  function tick(now){var p=Math.min(100,((now-start)/DUR)*100);fill.style.width=p+'%';if(p<100)requestAnimationFrame(tick);}
+  requestAnimationFrame(tick);
+  function hide(){if(done)return;done=true;setTimeout(function(){sp.classList.add('lolz-hidden');sp.addEventListener('transitionend',function(){sp.remove();},{once:true});},150);}
+  Promise.all([new Promise(function(r){if(document.readyState==='complete')r();else window.addEventListener('load',r,{once:true});}),new Promise(function(r){setTimeout(r,DUR);})]).then(hide);
+})();
+
+(function(){
+  var cv=document.getElementById('splashBg');
+  if(!cv)return;
+  var ct=cv.getContext('2d'),W,H,fr=0;
+  function rsz(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}rsz();
+  var pts=[];
+  for(var i=0;i<60;i++)pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+.3,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22});
+  var flt=[];
+  'LOLZLOLZLOLZ'.split('').forEach(function(ch,i){flt.push({ch,x:(i/13)*W+Math.random()*30,y:Math.random()*H,sz:Math.random()*22+10,sp:Math.random()*.3+.07,op:Math.random()*.04+.015,dr:(Math.random()-.5)*.1});});
+  function draw(){
+    ct.clearRect(0,0,W,H);fr++;
+    ct.strokeStyle='rgba(92,184,92,0.035)';ct.lineWidth=.5;
+    var G=32,off=(fr*.2)%G;
+    for(var c=0;c<=Math.ceil(W/G)+1;c++){ct.beginPath();ct.moveTo(c*G-off,0);ct.lineTo(c*G-off,H);ct.stroke();}
+    for(var r=0;r<=Math.ceil(H/G)+1;r++){ct.beginPath();ct.moveTo(0,r*G);ct.lineTo(W,r*G);ct.stroke();}
+    var g=ct.createRadialGradient(W*.8,H*.1,0,W*.8,H*.1,W*.5);
+    g.addColorStop(0,'rgba(92,184,92,0.055)');g.addColorStop(1,'rgba(0,0,0,0)');
+    ct.fillStyle=g;ct.fillRect(0,0,W,H);
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i];p.x+=p.vx;p.y+=p.vy;
+      if(p.x<-4)p.x=W+4;if(p.x>W+4)p.x=-4;if(p.y<-4)p.y=H+4;if(p.y>H+4)p.y=-4;
+      ct.globalAlpha=0.5;ct.fillStyle='#5cb85c';ct.beginPath();ct.arc(p.x,p.y,p.r,0,Math.PI*2);ct.fill();ct.globalAlpha=1;
+      for(var j=i+1;j<pts.length;j++){
+        var q=pts[j],dx=q.x-p.x,dy=q.y-p.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<100){ct.globalAlpha=(1-d/100)*.08;ct.strokeStyle='#5cb85c';ct.lineWidth=.4;ct.beginPath();ct.moveTo(p.x,p.y);ct.lineTo(q.x,q.y);ct.stroke();ct.globalAlpha=1;}
+      }
+    }
+    flt.forEach(function(f){
+      f.y-=f.sp;f.x+=f.dr;
+      if(f.y<-f.sz*2)f.y=H+f.sz;if(f.x<-30)f.x=W+10;if(f.x>W+30)f.x=-10;
+      ct.globalAlpha=f.op;ct.fillStyle='#5cb85c';
+      ct.font='700 '+f.sz+'px "Unbounded",sans-serif';ct.fillText(f.ch,f.x,f.y);ct.globalAlpha=1;
+    });
+    if(document.getElementById('splashBg'))requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
