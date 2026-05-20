@@ -1435,17 +1435,17 @@ loadTickets();
   var DUR=1800,start=performance.now(),done=false;
   function tick(now){var p=Math.min(100,((now-start)/DUR)*100);fill.style.width=p+'%';if(p<100)requestAnimationFrame(tick);}
   requestAnimationFrame(tick);
- function hide(){
+  function hide(){
     if(done)return;done=true;
     setTimeout(function(){
       sp.classList.add('lolz-hidden');
       sp.addEventListener('transitionend',function(){sp.remove();},{once:true});
-      // показываем auth screen
       var auth=document.getElementById('auth-screen');
       if(auth){auth.style.opacity='1';auth.style.pointerEvents='all';}
     },150);
   }
-
+  Promise.all([new Promise(function(r){if(document.readyState==='complete')r();else window.addEventListener('load',r,{once:true});}),new Promise(function(r){setTimeout(r,DUR);})]).then(hide);
+})();
 
 (function(){
   var cv=document.getElementById('splashBg');
@@ -1485,7 +1485,7 @@ loadTickets();
   draw();
 })();
 
-  function onRegister(){
+function onRegister(){
   document.getElementById('auth-screen').style.opacity='0';
   document.getElementById('auth-screen').style.pointerEvents='none';
   setTimeout(()=>document.getElementById('auth-screen').remove(),400);
