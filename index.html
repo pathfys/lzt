@@ -787,118 +787,7 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
     <svg class="ext-link-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
   </a>
 
-  <!-- График прироста -->
-  <div class="chart-wrap">
-    <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Прирост пользователей</div>
-    <div class="chart-meta-row">
-      <div class="chart-stat"><div class="chart-stat-val">248k</div><div class="chart-stat-lbl">Всего пользователей</div></div>
-      <div class="chart-stat"><div class="chart-stat-val" style="color:#7ed17e;">+15%</div><div class="chart-stat-lbl">Рост за месяц</div></div>
-      <div class="chart-badge-pill">Lolz · 2024</div>
-    </div>
-    <canvas id="growthChart" height="160" style="display:block;width:100%;"></canvas>
-  </div><!-- /chart-wrap -->
-
-</div><!-- /screen-home -->
-
-<!-- ═══════════════ TRAINING ═══════════════ -->
-<div class="screen" id="screen-training">
-  <div class="training-hero">
-    <div class="training-eyebrow">Lolz Academy</div>
-    <div class="training-title">Обучение</div>
-    <div class="training-sub">Изучай гайды, расти на маркете. Каждый модуль — шаг к новому уровню.</div>
-    <div class="training-progress-bar"><div class="training-progress-fill" style="width:25%"></div></div>
-    <div class="training-progress-label">1 из 4 модулей завершено</div>
-  </div>
-
-  <div class="section-title">Модули</div>
-
-  <div class="module-card done" onclick="openLesson(0)">
-    <div class="module-icon green">
-      <div class="icon-check-ring"><div class="check-ring"></div><div class="check-inner"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
-    </div>
-    <div class="module-info">
-      <div class="module-title">Введение в Lolz Market</div>
-      <div class="module-desc">Основы маркета, правила платформы, безопасность.</div>
-      <div class="module-meta"><span class="module-tag green">Завершён</span><span style="font-size:9px;color:var(--text-dim);">5 мин</span></div>
-    </div>
-    <div class="module-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7ed17e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-  </div>
-
-  <div class="module-card" onclick="openLesson(1)">
-    <div class="module-icon blue">
-      <div class="icon-pulse-dot"><div class="pulse-dot-ring"></div><div class="pulse-dot-core"></div></div>
-    </div>
-    <div class="module-info">
-      <div class="module-title">Система выплат TON</div>
-      <div class="module-desc">Как создавать сделки, методы ОТС и гарант, сроки.</div>
-      <div class="module-meta"><span class="module-tag blue">В процессе</span><span style="font-size:9px;color:var(--text-dim);">8 мин</span></div>
-    </div>
-    <div class="module-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg></div>
-  </div>
-
-  <div class="module-card" onclick="openLesson(2)">
-    <div class="module-icon gold">
-      <div class="icon-tag"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(229,160,32,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
-    </div>
-    <div class="module-info">
-      <div class="module-title">Оценка аккаунтов</div>
-      <div class="module-desc">Как оценить, выставить и успешно продать аккаунт.</div>
-      <div class="module-meta"><span class="module-tag gold">Доступен</span><span style="font-size:9px;color:var(--text-dim);">10 мин</span></div>
-    </div>
-    <div class="module-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg></div>
-  </div>
-
-  <div class="module-card locked" onclick="showToast('🔒 Завершите предыдущие модули')">
-    <div class="module-icon purple">
-      <div class="icon-lock-anim"><div class="lock-arch-anim"></div><div class="lock-body-anim"></div></div>
-    </div>
-    <div class="module-info">
-      <div class="module-title">Продвинутые стратегии</div>
-      <div class="module-desc">Масштабирование, VIP-продажи, работа с гарантом.</div>
-      <div class="module-meta"><span class="module-tag" style="background:rgba(255,255,255,0.04);color:#3d4f3d;">Заблокирован</span></div>
-    </div>
-    <div class="module-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-  </div>
-
-  <div class="section-title" style="margin-top:5px;">Мануалы</div>
-  <div class="manual-card" onclick="openLesson(4)">
-    <div class="module-icon purple" style="border-color:rgba(139,92,246,0.18);">
-      <div class="icon-scroll-anim"><div class="scroll-body"></div><div class="scroll-line1"></div><div class="scroll-line2"></div><div class="scroll-line3"></div></div>
-    </div>
-    <div class="module-info">
-      <div class="module-title">Мануал ОТС</div>
-      <div class="module-desc">Полное руководство: от регистрации до первой сделки.</div>
-      <div class="module-meta"><span class="module-tag" style="background:rgba(139,92,246,0.1);color:#c4b5fd;">Мануал</span><span style="font-size:9px;color:var(--text-dim);">12 мин</span></div>
-    </div>
-    <div class="module-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
-  </div>
-
-  <div class="section-title" style="margin-top:4px;">Внешние ресурсы</div>
-  <a class="ext-link-row" href="https://lolz.live/market" target="_blank" rel="noopener">
-    <div class="ext-link-icon">🌐</div>
-    <div class="ext-link-text"><div class="ext-link-title">Lolz Market</div><div class="ext-link-sub">lolz.live/market</div></div>
-    <svg class="ext-link-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-  </a>
-  <a class="ext-link-row" href="https://t.me/lolzteam" target="_blank" rel="noopener">
-    <div class="ext-link-icon">✈️</div>
-    <div class="ext-link-text"><div class="ext-link-title">Telegram-канал Lolz</div><div class="ext-link-sub">@lolzteam</div></div>
-    <svg class="ext-link-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-  </a>
-
 </div><!-- /screen-training -->
-<!-- ═══════════════ CAREER ═══════════════ -->
-<div class="screen" id="screen-career">
-  <div class="career-hero">
-    <div class="rank-badge-hero" id="currentRankBadge">Новичок</div>
-    <div style="height:10px;"></div>
-    <div class="career-title">Карьера</div>
-    <div class="career-sub" id="careerSubText">До следующего ранга: <strong style="color:var(--accent2);">5 сделок</strong>. Расти с каждой продажей.</div>
-    <div class="career-xp-bar"><div class="career-xp-fill" id="careerXpFill" style="width:0%"></div></div>
-    <div class="career-xp-label" id="careerXpLabel">0 / 5 сделок</div>
-  </div>
-  <div class="section-title">Система рангов</div>
-  <div class="rank-list" id="rankList"></div>
-</div>
 
 <!-- ═══════════════ TOP ═══════════════ -->
 <div class="screen" id="screen-top">
@@ -1031,14 +920,6 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
     <button class="nav-item active" id="nav-home" onclick="showScreen('home')">
       <div class="nav-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 4l9 8"/><path d="M9 21V12h6v9"/></svg></div>
       <span class="nav-label">Главная</span>
-    </button>
-    <button class="nav-item" id="nav-training" onclick="showScreen('training')">
-      <div class="nav-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
-      <span class="nav-label">Обучение</span>
-    </button>
-    <button class="nav-item" id="nav-career" onclick="showScreen('career')">
-      <div class="nav-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
-      <span class="nav-label">Карьера</span>
     </button>
     <button class="nav-item" id="nav-top" onclick="showScreen('top')">
       <div class="nav-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M17 7l-5-5-5 5M7 10.5V17h10v-6.5"/></svg></div>
