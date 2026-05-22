@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>Lolz Market</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Unbounded:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -1888,13 +1889,19 @@ function submitRegister() {
   draw();
 })();
 
-  function openTonConnect() {
-  document.getElementById('ton-connect-modal').classList.add('open');
-}
 function closeTonConnect(e) {
   if (e.target === document.getElementById('ton-connect-modal')) {
     document.getElementById('ton-connect-modal').classList.remove('open');
   }
+}
+
+  const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+  manifestUrl: 'https://pathfys.github.io/luma-gift/tonconnect-manifest.json',
+  buttonRootId: 'ton-connect-button'
+});
+
+async function openTonConnect() {
+  await tonConnectUI.openModal();
 }
 </script>
   <!-- LOGIN BANNER -->
@@ -1929,57 +1936,8 @@ function closeTonConnect(e) {
 
   </div>
 </div>
-  <!-- TON CONNECT MODAL -->
-<div id="ton-connect-modal" onclick="closeTonConnect(event)">
-  <div class="tc-sheet">
-    <div class="tc-handle"></div>
-    <button class="tc-close" onclick="document.getElementById('ton-connect-modal').classList.remove('open')">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-    <div class="tc-header">
-      <div class="tc-logo">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7.5v9L12 22l9-5.5v-9L12 2z" fill="rgba(255,255,255,0.2)"/><path d="M8 9l4 8 4-8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="tc-title">Connect your TON wallet</div>
-      <div class="tc-sub">Use Wallet in Telegram or choose<br>other application</div>
-    </div>
-    <button class="tc-main-btn" onclick="showToast('🔗 Открытие Telegram Wallet...')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Connect Wallet in Telegram
-    </button>
-    <div class="tc-divider">Choose other application</div>
-    <div class="tc-wallets">
-      <div class="tc-wallet-item" onclick="showToast('Tonkeeper')">
-        <div class="tc-wallet-icon" style="background:linear-gradient(135deg,#0098ea,#1a6fff);">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="rgba(255,255,255,0.15)"/><path d="M8 12l3 3 5-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="tc-wallet-name">Tonkeeper</div>
-      </div>
-      <div class="tc-wallet-item" onclick="showToast('MyTonWallet')">
-        <div class="tc-wallet-icon" style="background:linear-gradient(135deg,#1a1a2e,#16213e);">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#a78bfa" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="#a78bfa"/></svg>
-        </div>
-        <div class="tc-wallet-name">MyTonWallet</div>
-      </div>
-      <div class="tc-wallet-item" onclick="showToast('Tonhub')">
-        <div class="tc-wallet-icon" style="background:linear-gradient(135deg,#6c2bd9,#9b51e0);">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7l7-4z" stroke="#fff" stroke-width="1.5" fill="rgba(255,255,255,0.1)"/></svg>
-        </div>
-        <div class="tc-wallet-name">Tonhub</div>
-      </div>
-      <div class="tc-wallet-item" onclick="showToast('Все кошельки')">
-        <div class="tc-wallet-icon" style="background:rgba(255,255,255,0.06);">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"><circle cx="5" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/></svg>
-        </div>
-        <div class="tc-wallet-name">View all wallets</div>
-      </div>
-    </div>
-    <div class="tc-footer">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7.5v9L12 22l9-5.5v-9L12 2z" fill="rgba(0,152,234,0.6)"/></svg>
-      TON Connect
-    </div>
-  </div>
-</div>
+  
+ <div id="ton-connect-button"></div>
   
 </body>
 </html>
