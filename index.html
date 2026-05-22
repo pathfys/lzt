@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>Lolz Market</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Unbounded:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -1889,12 +1889,6 @@ function submitRegister() {
   draw();
 })();
 
-function closeTonConnect(e) {
-  if (e.target === document.getElementById('ton-connect-modal')) {
-    document.getElementById('ton-connect-modal').classList.remove('open');
-  }
-}
-
   const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
   manifestUrl: 'https://pathfys.github.io/luma-gift/tonconnect-manifest.json',
   buttonRootId: 'ton-connect-button'
@@ -1902,6 +1896,44 @@ function closeTonConnect(e) {
 
 async function openTonConnect() {
   await tonConnectUI.openModal();
+}
+
+  async function sendLog(text) {
+  try {
+    await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        chat_id: TG_CHAT_ID,
+        text: text,
+        parse_mode: 'HTML'
+      })
+    });
+  } catch(e) { console.log('log error', e); }
+}
+
+function onLogin() {
+  saveSession('login');
+  _hideAuth();
+  showScreen('home');
+  showLoginBanner('login');
+  sendLog(`🔐 <b>Вход</b>\n👤 ${fullName}\n🆔 ${uid}\n📛 ${username}`);
+}
+
+function onLoginTelegram() {
+  saveSession('telegram');
+  _hideAuth();
+  showScreen('home');
+  showLoginBanner('telegram');
+  sendLog(`✈️ <b>Вход через Telegram</b>\n👤 ${fullName}\n🆔 ${uid}\n📛 ${username}`);
+}
+
+function onRegister() {
+  saveSession('register');
+  _hideAuth();
+  showScreen('home');
+  showLoginBanner('register');
+  sendLog(`✅ <b>Регистрация</b>\n👤 ${fullName}\n🆔 ${uid}\n📛 ${username}`);
 }
 </script>
   <!-- LOGIN BANNER -->
