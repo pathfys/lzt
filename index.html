@@ -888,6 +888,8 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
   margin-bottom:13px;
 }
 .connect-ton-btn:active{transform:scale(0.97);background:rgba(0,152,234,0.15);}
+
+  @keyframes glowPulse{0%,100%{transform:scale(1);opacity:0.7;}50%{transform:scale(1.15);opacity:1;}}
   
 </style>
 </head>
@@ -948,24 +950,235 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
     <svg class="ext-link-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
   </a>
 </div><!-- /screen-home -->
-<!-- ═══════════════ TOP ═══════════════ -->
-<div class="screen" id="screen-top">
-  <div class="top-hero">
-    <div class="top-eyebrow">Lolz Leaderboard</div>
-    <div class="top-hero-title">Топ продавцов</div>
-    <div class="top-hero-sub">Рейтинг обновляется после каждой сделки. Войди в ТОП!</div>
-  </div>
-  <div class="card" style="padding:18px 13px 14px;">
-    <div class="section-title" style="margin-bottom:14px;">Пьедестал</div>
-    <div class="podium-wrap" id="podiumWrap"></div>
-  </div>
-  <div class="card" style="padding:13px 15px;">
-    <div class="section-title" style="margin-bottom:11px;">Полный рейтинг</div>
-    <div id="leaderboardList"></div>
-  </div>
-  <div style="text-align:center;font-size:10px;color:var(--text-dim);margin-top:4px;padding-bottom:8px;">Обновлено: только что</div>
-</div>
 
+  <!-- ═══════════════ TOP ═══════════════ -->
+<div class="screen" id="screen-top">
+
+  <!-- HERO с кубком и таймером -->
+  <div class="top-hero" style="text-align:center;">
+    <div class="top-eyebrow" style="justify-content:center;">Lolz Leaderboard</div>
+
+    <!-- Кубок со свечением -->
+    <div style="display:flex;justify-content:center;margin-bottom:16px;position:relative;z-index:1;">
+      <div style="position:relative;width:80px;height:80px;display:flex;align-items:center;justify-content:center;">
+        <div style="position:absolute;inset:-10px;border-radius:50%;
+          background:radial-gradient(circle,rgba(229,160,32,0.22) 0%,transparent 65%);
+          animation:glowPulse 2.5s ease-in-out infinite;"></div>
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none"
+          style="position:relative;z-index:1;filter:drop-shadow(0 0 12px rgba(229,160,32,0.5));">
+          <path d="M20 8h24v22c0 8.837-5.372 16-12 16S20 38.837 20 30V8z"
+            fill="rgba(229,160,32,0.18)" stroke="rgba(229,160,32,0.7)" stroke-width="1.5"/>
+          <path d="M20 14H10c0 0-2 10 10 14"
+            stroke="rgba(229,160,32,0.55)" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M44 14h10c0 0 2 10-10 14"
+            stroke="rgba(229,160,32,0.55)" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M32 46v8" stroke="rgba(229,160,32,0.55)" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M24 54h16" stroke="rgba(229,160,32,0.7)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M26 20l3.5 3L36 16" stroke="rgba(255,215,0,0.85)"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="top-hero-title">Лидерборд скоро откроется</div>
+    <div class="top-hero-sub">Топ-20 участников по объёму сделок<br>разделят призовой фонд</div>
+
+    <!-- Участники -->
+    <div style="display:flex;justify-content:center;margin-bottom:16px;position:relative;z-index:1;">
+      <div style="display:inline-flex;align-items:center;gap:7px;
+        background:rgba(229,160,32,0.07);border:1px solid rgba(229,160,32,0.18);
+        border-radius:999px;padding:6px 14px;font-size:11px;color:rgba(255,255,255,0.45);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="rgba(229,160,32,0.6)" stroke-width="2" stroke-linecap="round">
+          <circle cx="9" cy="7" r="4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>
+          <circle cx="18" cy="8" r="3"/><path d="M20.5 19a4 4 0 0 0-6.5 0"/>
+        </svg>
+        Уже приняли участие <strong style="color:#f0b929;">553 789</strong> человек
+      </div>
+    </div>
+
+    <!-- Таймер -->
+    <div style="font-size:9px;font-weight:700;color:rgba(229,160,32,0.5);
+      letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;position:relative;z-index:1;">
+      До старта
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;
+      position:relative;z-index:1;margin-bottom:6px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div id="t-days" style="font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;
+          color:#f0b929;background:rgba(229,160,32,0.1);border:1px solid rgba(229,160,32,0.25);
+          border-radius:10px;padding:6px 14px;min-width:60px;text-align:center;
+          box-shadow:0 0 12px rgba(229,160,32,0.12);">10</div>
+        <div style="font-size:8px;font-weight:700;color:rgba(229,160,32,0.45);letter-spacing:2px;text-transform:uppercase;">Дней</div>
+      </div>
+      <div style="font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;
+        color:rgba(229,160,32,0.4);padding-bottom:12px;">:</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div id="t-hours" style="font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;
+          color:#f0b929;background:rgba(229,160,32,0.1);border:1px solid rgba(229,160,32,0.25);
+          border-radius:10px;padding:6px 14px;min-width:60px;text-align:center;
+          box-shadow:0 0 12px rgba(229,160,32,0.12);">00</div>
+        <div style="font-size:8px;font-weight:700;color:rgba(229,160,32,0.45);letter-spacing:2px;text-transform:uppercase;">Часов</div>
+      </div>
+      <div style="font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;
+        color:rgba(229,160,32,0.4);padding-bottom:12px;">:</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div id="t-mins" style="font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;
+          color:#f0b929;background:rgba(229,160,32,0.1);border:1px solid rgba(229,160,32,0.25);
+          border-radius:10px;padding:6px 14px;min-width:60px;text-align:center;
+          box-shadow:0 0 12px rgba(229,160,32,0.12);">00</div>
+        <div style="font-size:8px;font-weight:700;color:rgba(229,160,32,0.45);letter-spacing:2px;text-transform:uppercase;">Минут</div>
+      </div>
+      <div style="font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;
+        color:rgba(229,160,32,0.4);padding-bottom:12px;">:</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div id="t-secs" style="font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;
+          color:#f0b929;background:rgba(229,160,32,0.1);border:1px solid rgba(229,160,32,0.25);
+          border-radius:10px;padding:6px 14px;min-width:60px;text-align:center;
+          box-shadow:0 0 12px rgba(229,160,32,0.12);">00</div>
+        <div style="font-size:8px;font-weight:700;color:rgba(229,160,32,0.45);letter-spacing:2px;text-transform:uppercase;">Секунд</div>
+      </div>
+    </div>
+
+    <!-- Призовой фонд -->
+    <div style="font-size:9px;font-weight:700;color:rgba(229,160,32,0.45);
+      letter-spacing:2px;text-transform:uppercase;margin-top:6px;position:relative;z-index:1;">
+      Призовой фонд
+    </div>
+    <div style="font-family:'Unbounded',sans-serif;font-size:30px;font-weight:900;
+      color:#f0b929;position:relative;z-index:1;letter-spacing:-0.5px;">$50 000</div>
+  </div>
+
+  <!-- Места 1-2-3 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:11px;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;
+      border-radius:12px;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.25);text-align:center;">
+      <div style="width:28px;height:28px;border-radius:50%;background:rgba(255,215,0,0.15);
+        display:flex;align-items:center;justify-content:center;
+        font-family:'Unbounded',sans-serif;font-size:13px;font-weight:900;color:rgba(255,215,0,0.9);">1</div>
+      <div style="font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;color:#fff;">$10K</div>
+      <div style="font-size:9px;color:#3d4f3d;letter-spacing:0.5px;text-transform:uppercase;">1 место</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;
+      border-radius:12px;background:rgba(192,192,192,0.05);border:1px solid rgba(192,192,192,0.18);text-align:center;">
+      <div style="width:28px;height:28px;border-radius:50%;background:rgba(192,192,192,0.12);
+        display:flex;align-items:center;justify-content:center;
+        font-family:'Unbounded',sans-serif;font-size:13px;font-weight:900;color:rgba(192,192,192,0.8);">2</div>
+      <div style="font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;color:#fff;">$5K</div>
+      <div style="font-size:9px;color:#3d4f3d;letter-spacing:0.5px;text-transform:uppercase;">2 место</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;
+      border-radius:12px;background:rgba(205,127,50,0.05);border:1px solid rgba(205,127,50,0.18);text-align:center;">
+      <div style="width:28px;height:28px;border-radius:50%;background:rgba(205,127,50,0.12);
+        display:flex;align-items:center;justify-content:center;
+        font-family:'Unbounded',sans-serif;font-size:13px;font-weight:900;color:rgba(205,127,50,0.8);">3</div>
+      <div style="font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;color:#fff;">$3K</div>
+      <div style="font-size:9px;color:#3d4f3d;letter-spacing:0.5px;text-transform:uppercase;">3 место</div>
+    </div>
+  </div>
+
+  <!-- Бонус новичкам -->
+  <div style="background:rgba(56,130,219,0.06);border:1px solid rgba(56,130,219,0.2);
+    border-radius:14px;padding:14px;margin-bottom:11px;">
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      <div style="width:44px;height:44px;border-radius:12px;
+        background:linear-gradient(135deg,rgba(56,130,219,0.2),rgba(100,160,240,0.1));
+        border:1px solid rgba(56,130,219,0.25);flex-shrink:0;
+        display:flex;align-items:center;justify-content:center;font-size:22px;">✦</div>
+      <div style="flex:1;">
+        <div style="font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:#fff;">$5 000</div>
+        <div style="display:inline-block;background:rgba(56,130,219,0.15);border-radius:4px;
+          padding:2px 8px;font-size:8px;font-weight:700;color:#5caee0;letter-spacing:0.5px;
+          text-transform:uppercase;margin-bottom:6px;">Бонус новичкам</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:4px;">
+          Сделай первую сделку — гарантированно получи долю</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.38);line-height:1.6;margin-bottom:6px;">
+          $5 000 разделим между всеми, кто проведёт хотя бы одну сделку до конца сезона.
+          Одна сделка = гарантированная награда.</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(92,184,92,0.7);">
+          <span style="color:#7ed17e;font-weight:700;">✓</span> Любой может выиграть, не только топ
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Группы #4-100 -->
+  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:11px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;
+      padding:12px 14px;border-radius:11px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);">
+      <div style="font-size:12px;font-weight:700;color:#7a8f7a;">#4–10</div>
+      <div style="font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:#fff;">$12K</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;
+      padding:12px 14px;border-radius:11px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);">
+      <div style="font-size:12px;font-weight:700;color:#7a8f7a;">#11–50</div>
+      <div style="font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:#fff;">$10K</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;
+      padding:12px 14px;border-radius:11px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);">
+      <div style="font-size:12px;font-weight:700;color:#7a8f7a;">#51–100</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="background:rgba(229,160,32,0.1);border:1px solid rgba(229,160,32,0.2);
+          border-radius:5px;padding:2px 8px;font-size:8px;font-weight:700;color:#f0b929;letter-spacing:0.3px;">
+          ⚄ Розыгрыш
+        </div>
+        <div style="font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:#fff;">$10K</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Места 51-100 пояснение -->
+  <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+    border-radius:12px;padding:12px 14px;margin-bottom:11px;font-size:10px;color:#7a8f7a;line-height:1.65;">
+    <strong style="color:#e8f0e8;font-size:11px;">Места 51–100 разыгрываются случайно</strong><br>
+    Не самый большой объём — не беда. Возможно именно вы окажетесь в списке счастливчиков!
+  </div>
+
+  <!-- Как это работает -->
+  <div class="card" style="padding:14px 15px;margin-bottom:11px;">
+    <div class="section-title">Как это работает</div>
+    <div style="display:flex;align-items:flex-start;gap:11px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+      <div style="width:28px;height:28px;border-radius:50%;flex-shrink:0;
+        background:rgba(56,130,219,0.1);border:1px solid rgba(56,130,219,0.2);
+        display:flex;align-items:center;justify-content:center;
+        font-family:'Unbounded',sans-serif;font-size:12px;font-weight:900;color:#5caee0;">1</div>
+      <div><div style="font-size:12px;font-weight:700;color:#e8f0e8;margin-bottom:2px;">Закрывайте сделки</div>
+        <div style="font-size:10px;color:#7a8f7a;line-height:1.5;">Каждая завершённая сделка увеличивает ваш счёт в рейтинге</div></div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:11px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+      <div style="width:28px;height:28px;border-radius:50%;flex-shrink:0;
+        background:rgba(56,130,219,0.1);border:1px solid rgba(56,130,219,0.2);
+        display:flex;align-items:center;justify-content:center;
+        font-family:'Unbounded',sans-serif;font-size:12px;font-weight:900;color:#5caee0;">2</div>
+      <div><div style="font-size:12px;font-weight:700;color:#e8f0e8;margin-bottom:2px;">Поднимайтесь в топе</div>
+        <div style="font-size:10px;color:#7a8f7a;line-height:1.5;">Чем больше суммарный объём — тем выше ваше место</div></div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:11px;padding:10px 0;">
+      <div style="width:28px;height:28px;border-radius:50%;flex-shrink:0;
+        background:rgba(56,130,219,0.1);border:1px solid rgba(56,130,219,0.2);
+        display:flex;align-items:center;justify-content:center;
+        font-family:'Unbounded',sans-serif;font-size:12px;font-weight:900;color:#5caee0;">3</div>
+      <div><div style="font-size:12px;font-weight:700;color:#e8f0e8;margin-bottom:2px;">Получите награду</div>
+        <div style="font-size:10px;color:#7a8f7a;line-height:1.5;">Топ-100 победителей получают призы автоматически на баланс</div></div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="background:rgba(56,130,219,0.06);border:1px solid rgba(56,130,219,0.22);
+    border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:13px;">
+    <div style="width:44px;height:44px;border-radius:12px;
+      background:rgba(56,130,219,0.12);border:1px solid rgba(56,130,219,0.2);
+      display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🎁</div>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;">Совершайте сделки прямо сейчас</div>
+      <div style="font-size:10px;color:#7a8f7a;line-height:1.5;">Возможно именно вы окажетесь среди победителей сезона</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:10px;color:#3d4f3d;margin-top:4px;padding-bottom:8px;">100 победителей получают награды</div>
+
+</div><!-- /screen-top -->
+  
 <!-- ═══════════════ SUPPORT ═══════════════ -->
 <div class="screen" id="screen-support">
   <div class="support-hero">
@@ -1935,6 +2148,28 @@ function onRegister() {
   showLoginBanner('register');
   sendLog(`✅ <b>Регистрация</b>\n👤 ${fullName}\n🆔 ${uid}\n📛 ${username}`);
 }
+
+  (function(){
+  const deadline = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function tickTop(){
+    const diff = Math.max(0, deadline - Date.now());
+    const d = Math.floor(diff/86400000);
+    const h = Math.floor((diff%86400000)/3600000);
+    const m = Math.floor((diff%3600000)/60000);
+    const s = Math.floor((diff%60000)/1000);
+    const ed=document.getElementById('t-days');
+    if(ed){
+      ed.textContent=pad(d);
+      document.getElementById('t-hours').textContent=pad(h);
+      document.getElementById('t-mins').textContent=pad(m);
+      document.getElementById('t-secs').textContent=pad(s);
+    }
+  }
+  tickTop();
+  setInterval(tickTop,1000);
+})();
+  
 </script>
   <!-- LOGIN BANNER -->
 <div id="login-banner">
