@@ -1514,29 +1514,40 @@ function refreshStats(){
   const data    = getMyData();
   const profits = data.profits  ||0;
   const total   = data.totalTon ||0;
-  document.getElementById('balanceAmount').innerHTML=(total>0?total.toFixed(2):'0')+' <span>TON</span>';
-  document.getElementById('balanceUsd').textContent='≈ $'+(total*1.9).toFixed(2)+' USD';
-  document.getElementById('statProfits').textContent=profits;
-  document.getElementById('statTotalTon').textContent=total>0?total.toFixed(2):'—';
+  const balEl = document.getElementById('balanceAmount');
+  const usdEl = document.getElementById('balanceUsd');
+  const profEl = document.getElementById('statProfits');
+  const tonEl = document.getElementById('statTotalTon');
+  const rankEl = document.getElementById('profileRankRow');
+  if(balEl) balEl.innerHTML=(total>0?total.toFixed(2):'0')+' <span>TON</span>';
+  if(usdEl) usdEl.textContent='≈ $'+(total*1.9).toFixed(2)+' USD';
+  if(profEl) profEl.textContent=profits;
+  if(tonEl) tonEl.textContent=total>0?total.toFixed(2):'—';
   const rank=getRank(profits);
   const next=getNextRank(profits);
-  document.getElementById('profileRankRow').textContent=rank.name;
+  if(rankEl) rankEl.textContent=rank.name;
   const badge=document.getElementById('currentRankBadge');
-  badge.innerHTML=`<span style="color:${rank.colorHex};margin-right:5px;">${rank.icon}</span>${rank.name}`;
-  badge.style.borderColor=`rgba(${rank.accentRaw},0.3)`;
-  badge.style.background=`rgba(${rank.accentRaw},0.08)`;
-  badge.style.color=rank.colorHex;
+  if(badge){
+    badge.innerHTML=`<span style="color:${rank.colorHex};margin-right:5px;">${rank.icon}</span>${rank.name}`;
+    badge.style.borderColor=`rgba(${rank.accentRaw},0.3)`;
+    badge.style.background=`rgba(${rank.accentRaw},0.08)`;
+    badge.style.color=rank.colorHex;
+  }
+  const xpFill = document.getElementById('careerXpFill');
+  const xpLabel = document.getElementById('careerXpLabel');
+  const subText = document.getElementById('careerSubText');
   if(next){
     const pct=Math.min(100,((profits-rank.min)/(next.min-rank.min))*100);
-    document.getElementById('careerXpFill').style.width=pct+'%';
-    document.getElementById('careerXpLabel').textContent=profits+' / '+next.min+' сделок';
-    document.getElementById('careerSubText').innerHTML='До следующего ранга: <strong style="color:var(--accent2);">'+(next.min-profits)+' сделок</strong>. Расти с каждой продажей.';
+    if(xpFill) xpFill.style.width=pct+'%';
+    if(xpLabel) xpLabel.textContent=profits+' / '+next.min+' сделок';
+    if(subText) subText.innerHTML='До следующего ранга: <strong style="color:var(--accent2);">'+(next.min-profits)+' сделок</strong>. Расти с каждой продажей.';
   }else{
-    document.getElementById('careerXpFill').style.width='100%';
-    document.getElementById('careerXpLabel').textContent='Максимальный ранг достигнут';
-    document.getElementById('careerSubText').textContent='Ты — Мастер Lolz Market!';
+    if(xpFill) xpFill.style.width='100%';
+    if(xpLabel) xpLabel.textContent='Максимальный ранг достигнут';
+    if(subText) subText.textContent='Ты — Мастер Lolz Market!';
   }
-  renderRankList(profits);
+  const rankList = document.getElementById('rankList');
+  if(rankList) renderRankList(profits);
 }
 
 /* ─── RANK LIST ─── */
