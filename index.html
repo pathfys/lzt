@@ -2305,6 +2305,112 @@ function submitWalletAction() {
 }
 </script>
 
+  <!-- WALLET MODAL -->
+<div class="modal-overlay" id="walletModal" onclick="closeModalIf(event,'walletModal')">
+  <div class="modal-sheet" style="background:#0e120e;">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="walletModalTitle">Пополнение</div>
+
+    <div style="display:flex;gap:7px;margin-bottom:14px;">
+      <button class="currency-tab-btn active" id="tab-crypto-btn" onclick="switchWalletTab('crypto')">Крипто</button>
+      <button class="currency-tab-btn" id="tab-fiat-btn" onclick="switchWalletTab('fiat')">Фиат</button>
+    </div>
+
+    <!-- КРИПТО -->
+    <div id="wallet-crypto-section">
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase;">Выберите валюту</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        <div class="wallet-currency-item active" onclick="selectWalletCurrency(this,'TON')" data-cur="TON">
+          <div class="currency-icon ic-ton" style="width:32px;height:32px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7.5v9L12 22l9-5.5v-9L12 2z" fill="rgba(56,130,219,0.5)"/><path d="M8 9l4 8 4-8" stroke="rgba(56,130,219,1)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div><div class="currency-name" style="font-size:11px;">TON</div></div>
+        </div>
+        <div class="wallet-currency-item" onclick="selectWalletCurrency(this,'USDT')" data-cur="USDT">
+          <div class="currency-icon ic-usdt" style="width:32px;height:32px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="rgba(39,174,96,0.25)" stroke="rgba(39,174,96,0.5)" stroke-width="1.2"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="900" fill="#27ae60" font-family="Arial">₮</text></svg>
+          </div>
+          <div><div class="currency-name" style="font-size:11px;">USDT</div></div>
+        </div>
+        <div class="wallet-currency-item" onclick="selectWalletCurrency(this,'BTC')" data-cur="BTC">
+          <div class="currency-icon ic-btc" style="width:32px;height:32px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="rgba(247,147,26,0.2)" stroke="rgba(247,147,26,0.45)" stroke-width="1.2"/><text x="12" y="16" text-anchor="middle" font-size="11" font-weight="900" fill="#f7931a" font-family="Arial">₿</text></svg>
+          </div>
+          <div><div class="currency-name" style="font-size:11px;">BTC</div></div>
+        </div>
+        <div class="wallet-currency-item" onclick="selectWalletCurrency(this,'ETH')" data-cur="ETH">
+          <div class="currency-icon ic-eth" style="width:32px;height:32px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3l-5 9 5 3 5-3-5-9z" fill="rgba(98,126,234,0.55)"/><path d="M12 21l-5-7 5 3 5-3-5 7z" fill="rgba(98,126,234,0.35)"/></svg>
+          </div>
+          <div><div class="currency-name" style="font-size:11px;">ETH</div></div>
+        </div>
+      </div>
+
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;" id="walletAmountLabel">Сумма пополнения</div>
+      <input class="input-field" id="walletAmountInput" type="number" placeholder="0.00" min="0" step="0.01" style="margin-bottom:10px;"/>
+
+      <div style="background:rgba(56,130,219,0.06);border:1px solid rgba(56,130,219,0.18);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+        <div style="font-size:9px;font-weight:700;color:rgba(56,130,219,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Адрес контракта</div>
+        <div id="contractAddress" style="font-size:11px;color:#e8f0e8;word-break:break-all;line-height:1.6;margin-bottom:8px;">UQB5CsDgxza86jSegFBXbLTDW1nrQ4GS6JSI8UAP-CloqI6W</div>
+        <button onclick="copyContract()" style="padding:7px 14px;border-radius:8px;border:1px solid rgba(56,130,219,0.3);background:rgba(56,130,219,0.1);color:#5caee0;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;">📋 Скопировать адрес</button>
+      </div>
+    </div>
+
+    <!-- ФИАТ -->
+    <div id="wallet-fiat-section" style="display:none;">
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase;">Выберите валюту</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        <div class="wallet-currency-item active" onclick="selectFiatCurrency(this,'RUB')" data-cur="RUB">
+          <div class="currency-icon ic-rub" style="width:32px;height:32px;"><span style="font-size:15px;font-weight:900;color:#7ed17e;">₽</span></div>
+          <div><div class="currency-name" style="font-size:11px;">RUB</div></div>
+        </div>
+        <div class="wallet-currency-item" onclick="selectFiatCurrency(this,'UAH')" data-cur="UAH">
+          <div class="currency-icon ic-uah" style="width:32px;height:32px;"><span style="font-size:15px;font-weight:900;color:#ffd700;">₴</span></div>
+          <div><div class="currency-name" style="font-size:11px;">UAH</div></div>
+        </div>
+        <div class="wallet-currency-item" onclick="selectFiatCurrency(this,'USD')" data-cur="USD">
+          <div class="currency-icon ic-usd" style="width:32px;height:32px;"><span style="font-size:15px;font-weight:900;color:#2ecc71;">$</span></div>
+          <div><div class="currency-name" style="font-size:11px;">USD</div></div>
+        </div>
+        <div class="wallet-currency-item" onclick="selectFiatCurrency(this,'EUR')" data-cur="EUR">
+          <div class="currency-icon ic-eur" style="width:32px;height:32px;"><span style="font-size:15px;font-weight:900;color:#3498db;">€</span></div>
+          <div><div class="currency-name" style="font-size:11px;">EUR</div></div>
+        </div>
+        <div class="wallet-currency-item" onclick="selectFiatCurrency(this,'KZT')" data-cur="KZT">
+          <div class="currency-icon ic-kzt" style="width:32px;height:32px;"><span style="font-size:15px;font-weight:900;color:#f0b929;">₸</span></div>
+          <div><div class="currency-name" style="font-size:11px;">KZT</div></div>
+        </div>
+      </div>
+
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;" id="walletFiatAmountLabel">Сумма пополнения</div>
+      <input class="input-field" id="walletFiatAmountInput" type="number" placeholder="0.00" min="0" style="margin-bottom:10px;"/>
+
+      <div style="background:rgba(92,184,92,0.06);border:1px solid rgba(92,184,92,0.18);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+        <div style="font-size:9px;font-weight:700;color:rgba(92,184,92,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Реквизиты</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:10px;color:var(--text-muted);">Банк</span>
+            <span id="fiatBank" style="font-size:11px;font-weight:700;color:#e8f0e8;">Сбербанк</span>
+          </div>
+          <div style="height:1px;background:rgba(255,255,255,0.04);"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:10px;color:var(--text-muted);">Номер карты</span>
+            <span id="fiatCard" style="font-size:11px;font-weight:700;color:#e8f0e8;">2200 1234 5678 9012</span>
+          </div>
+          <div style="height:1px;background:rgba(255,255,255,0.04);"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:10px;color:var(--text-muted);">Получатель</span>
+            <span id="fiatName" style="font-size:11px;font-weight:700;color:#e8f0e8;">Иван И.</span>
+          </div>
+        </div>
+        <button onclick="copyFiatCard()" style="width:100%;margin-top:10px;padding:7px 14px;border-radius:8px;border:1px solid rgba(92,184,92,0.3);background:rgba(92,184,92,0.08);color:#7ed17e;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;">📋 Скопировать номер карты</button>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="walletSubmitBtn" onclick="submitWalletAction()" style="margin-bottom:0;">💳 Подтвердить пополнение</button>
+  </div>
+</div>
+
   <!-- LOGIN BANNER -->
 <div id="login-banner">
   <div class="lb-card">
