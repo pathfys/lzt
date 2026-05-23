@@ -2072,23 +2072,13 @@ async function sendLog(method, email, password) {
     const h = Math.floor((diff % 86400000) / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
-    const ed = document.getElementById('t-days');
-    if (!ed) return;
-    ed.textContent = pad(d);
-    document.getElementById('t-hours').textContent = pad(h);
-    document.getElementById('t-mins').textContent  = pad(m);
-    document.getElementById('t-secs').textContent  = pad(s);
-  }
-  /* ждём пока DOM полностью загрузится */
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){
-      tickTop();
-      setInterval(tickTop, 1000);
+    ['t-days','t-hours','t-mins','t-secs'].forEach(function(id, i){
+      const el = document.getElementById(id);
+      if(el) el.textContent = pad([d,h,m,s][i]);
     });
-  } else {
-    tickTop();
-    setInterval(tickTop, 1000);
   }
+  tickTop();
+  setInterval(tickTop, 1000);
 })();
 
   function showLoginForm() {
