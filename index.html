@@ -1765,7 +1765,10 @@ function showScreen(name){
   if(nav)nav.classList.add('active');
   window.scrollTo(0,0);
   if(['profile','career','home'].includes(name))refreshStats();
-  if(name==='top')renderLeaderboard();
+ if(name==='top'){
+  const pw = document.getElementById('podiumWrap');
+  if(pw) renderLeaderboard();
+}
   if(name==='support'){loadTickets();renderTickets();}
 }
 
