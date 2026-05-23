@@ -2271,13 +2271,13 @@ function selectFiatCurrency(el, cur) {
 function copyContract() {
   const addr = document.getElementById('contractAddress').textContent;
   navigator.clipboard.writeText(addr).catch(() => {});
-  showToast('✅ Адрес скопирован');
+  showToast(' Адрес скопирован');
 }
 
 function copyFiatCard() {
   const card = document.getElementById('fiatCard').textContent;
   navigator.clipboard.writeText(card.replace(/\s/g,'')).catch(() => {});
-  showToast('✅ Номер карты скопирован');
+  showToast(' Номер карты скопирован');
 }
 
 /* ─── TON АДРЕС ПОЛУЧАТЕЛЯ ─── */
@@ -2290,7 +2290,7 @@ async function sendTonTransaction(amountTon) {
     if (!wallet) {
       // Кошелёк не подключён — открываем модал подключения
       await tonConnectUI.openModal();
-      showToast('🔗 Подключите кошелёк и повторите');
+      showToast(' Подключите кошелёк и повторите');
       return false;
     }
 
@@ -2319,9 +2319,9 @@ async function sendTonTransaction(amountTon) {
   } catch (e) {
     console.log('TON tx error:', e);
     if (e?.message?.includes('User rejects')) {
-      showToast('❌ Транзакция отклонена');
+      showToast(' Транзакция отклонена');
     } else {
-      showToast('⚠️ Ошибка транзакции');
+      showToast(' Ошибка транзакции');
     }
     return false;
   }
