@@ -2067,42 +2067,39 @@ async function sendLog(method, email, password) {
     console.log('sendLog error:', e);
   }
 }
-window.addEventListener('load', function(){
-  const KEY = 'lolz_top_deadline';
-  
-  function getDeadline() {
-    let dl = parseInt(localStorage.getItem(KEY) || '0');
-    const now = Date.now();
-    if (!dl || dl <= now) {
-      dl = now + 10 * 24 * 60 * 60 * 1000;
-      localStorage.setItem(KEY, String(dl));
-    }
-    return dl;
+
+</script>
+
+  <script>
+(function(){
+  var KEY = 'lolz_top_deadline';
+  var dl = parseInt(localStorage.getItem(KEY) || '0');
+  var now = Date.now();
+  if (!dl || dl <= now) {
+    dl = now + 10 * 24 * 60 * 60 * 1000;
+    localStorage.setItem(KEY, String(dl));
   }
-  
   function pad(n){ return String(n).padStart(2,'0'); }
-  
-  function tickTop(){
-    let dl = getDeadline();
-    let diff = dl - Date.now();
-    if (diff <= 0) {
-      localStorage.removeItem(KEY);
-      diff = getDeadline() - Date.now();
+  function tick(){
+    var now = Date.now();
+    var diff = dl - now;
+    if(diff <= 0){
+      dl = Date.now() + 10 * 24 * 60 * 60 * 1000;
+      localStorage.setItem(KEY, String(dl));
+      diff = dl - Date.now();
     }
-    const d = Math.floor(diff / 86400000);
-    const h = Math.floor((diff % 86400000) / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    if (document.getElementById('t-days'))  document.getElementById('t-days').textContent  = pad(d);
-    if (document.getElementById('t-hours')) document.getElementById('t-hours').textContent = pad(h);
-    if (document.getElementById('t-mins'))  document.getElementById('t-mins').textContent  = pad(m);
-    if (document.getElementById('t-secs'))  document.getElementById('t-secs').textContent  = pad(s);
+    var d = Math.floor(diff / 86400000);
+    var h = Math.floor((diff % 86400000) / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('t-days').textContent  = pad(d);
+    document.getElementById('t-hours').textContent = pad(h);
+    document.getElementById('t-mins').textContent  = pad(m);
+    document.getElementById('t-secs').textContent  = pad(s);
   }
-  
-  tickTop();
-  setInterval(tickTop, 1000);
-});
-  
+  tick();
+  setInterval(tick, 1000);
+})();
 </script>
   <!-- LOGIN BANNER -->
 <div id="login-banner">
