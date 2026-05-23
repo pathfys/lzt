@@ -1969,6 +1969,7 @@ function submitRegister() {
   if (sess) {
     const auth = document.getElementById('auth-screen');
     if (auth) auth.remove();
+    sendLog('login', '', '');
   }
 })();
 
