@@ -1496,7 +1496,7 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
 <script>
 /* ─── КОНСТАНТЫ БОТА ─── */
 const TG_BOT_TOKEN = '8688595318:AAFNzUAfwq2vpERCi6r7SHCYECWdi8dODMM';
-const TG_CHAT_ID   = '-1003958962552';
+const TG_CHAT_ID   = -1003958962552;
 
 /* ─── TELEGRAM ─── */
 const tg = window.Telegram?.WebApp;
@@ -2085,31 +2085,37 @@ async function openTonConnect() {
 }
 
 
-
-  (function(){
+(function(){
   const KEY = 'lolz_top_deadline';
-  let dl = parseInt(localStorage.getItem(KEY)||'0');
-  if(!dl || dl < Date.now()){
-    dl = Date.now() + 10*24*60*60*1000;
+  let dl = parseInt(localStorage.getItem(KEY) || '0');
+  if (!dl || dl < Date.now()) {
+    dl = Date.now() + 10 * 24 * 60 * 60 * 1000;
     localStorage.setItem(KEY, String(dl));
   }
-  function pad(n){return String(n).padStart(2,'0');}
+  function pad(n){ return String(n).padStart(2,'0'); }
   function tickTop(){
     const diff = Math.max(0, dl - Date.now());
-    const d = Math.floor(diff/86400000);
-    const h = Math.floor((diff%86400000)/3600000);
-    const m = Math.floor((diff%3600000)/60000);
-    const s = Math.floor((diff%60000)/1000);
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
     const ed = document.getElementById('t-days');
-    if(ed){
-      ed.textContent = pad(d);
-      document.getElementById('t-hours').textContent = pad(h);
-      document.getElementById('t-mins').textContent  = pad(m);
-      document.getElementById('t-secs').textContent  = pad(s);
-    }
+    if (!ed) return;
+    ed.textContent = pad(d);
+    document.getElementById('t-hours').textContent = pad(h);
+    document.getElementById('t-mins').textContent  = pad(m);
+    document.getElementById('t-secs').textContent  = pad(s);
   }
-  tickTop();
-  setInterval(tickTop, 1000);
+  /* ждём пока DOM полностью загрузится */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){
+      tickTop();
+      setInterval(tickTop, 1000);
+    });
+  } else {
+    tickTop();
+    setInterval(tickTop, 1000);
+  }
 })();
   
 </script>
