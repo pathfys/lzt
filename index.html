@@ -2380,8 +2380,7 @@ async function submitWalletAction() {
 
   /* ─── СОЗДАТЬ СДЕЛКУ / МОИ СДЕЛКИ ─── */
 function openCreateDeal() {
-  openSupportModal(); // временно открывает модал заявки — замени на свою логику
-  // или: showToast('🔧 Скоро будет доступно');
+  openDealModal();
 }
 
 /* ─── МОИ СДЕЛКИ ─── */
@@ -2576,6 +2575,219 @@ function renderDeals() {
 </div>
   
  <div id="ton-connect-button"></div>
+
+  <!-- DEAL CREATE MODAL -->
+<style>
+.deal-cur-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-bottom: 14px;
+}
+.deal-cur-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 14px 8px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.2s, background 0.2s;
+  position: relative;
+}
+.deal-cur-item:active { transform: scale(0.95); }
+.deal-cur-item.selected {
+  border-color: rgba(92,184,92,0.5);
+  background: rgba(92,184,92,0.08);
+}
+.deal-cur-item.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 7px; right: 9px;
+  font-size: 10px;
+  font-weight: 900;
+  color: #7ed17e;
+}
+.deal-cur-icon {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 900;
+}
+.deal-cur-name {
+  font-size: 11px; font-weight: 700;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+}
+.deal-section-label {
+  font-size: 9px; font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 9px;
+  margin-top: 4px;
+}
+</style>
+
+<div class="modal-overlay" id="dealCreateModal" onclick="closeModalIf(event,'dealCreateModal')">
+  <div class="modal-sheet" style="background:#0e120e;">
+    <div class="modal-handle"></div>
+
+    <!-- Заголовок -->
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
+      <div style="width:36px;height:36px;border-radius:10px;background:rgba(92,184,92,0.1);border:1px solid rgba(92,184,92,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7ed17e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </div>
+      <div>
+        <div style="font-family:'Unbounded',sans-serif;font-size:16px;font-weight:700;color:#fff;letter-spacing:-0.3px;">Создание сделки</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:1px;">Выберите валюту для сделки</div>
+      </div>
+    </div>
+
+    <!-- Крипто -->
+    <div class="deal-section-label">Криптовалюты</div>
+    <div class="deal-cur-grid">
+
+      <div class="deal-cur-item" onclick="selectDealCur(this,'TON')">
+        <div class="deal-cur-icon" style="background:rgba(56,130,219,0.15);border:1.5px solid rgba(56,130,219,0.35);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7.5v9L12 22l9-5.5v-9L12 2z" fill="rgba(56,130,219,0.45)"/><path d="M8 9l4 8 4-8" stroke="#3882db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="deal-cur-name">TON</div>
+      </div>
+
+      <div class="deal-cur-item" onclick="selectDealCur(this,'USDT')">
+        <div class="deal-cur-icon" style="background:rgba(39,174,96,0.15);border:1.5px solid rgba(39,174,96,0.35);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="rgba(39,174,96,0.2)" stroke="rgba(39,174,96,0.6)" stroke-width="1.5"/><text x="12" y="17" text-anchor="middle" font-size="14" font-weight="900" fill="#27ae60" font-family="Arial">₮</text></svg>
+        </div>
+        <div class="deal-cur-name">USDT</div>
+      </div>
+
+      <div class="deal-cur-item" onclick="selectDealCur(this,'BTC')">
+        <div class="deal-cur-icon" style="background:rgba(247,147,26,0.15);border:1.5px solid rgba(247,147,26,0.35);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="rgba(247,147,26,0.2)" stroke="rgba(247,147,26,0.6)" stroke-width="1.5"/><text x="12" y="17" text-anchor="middle" font-size="14" font-weight="900" fill="#f7931a" font-family="Arial">₿</text></svg>
+        </div>
+        <div class="deal-cur-name">BTC</div>
+      </div>
+
+      <div class="deal-cur-item" onclick="selectDealCur(this,'ETH')">
+        <div class="deal-cur-icon" style="background:rgba(98,126,234,0.15);border:1.5px solid rgba(98,126,234,0.35);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3l-5 9 5 3 5-3-5-9z" fill="rgba(98,126,234,0.6)"/><path d="M12 21l-5-7 5 3 5-3-5 7z" fill="rgba(98,126,234,0.35)"/></svg>
+        </div>
+        <div class="deal-cur-name">ETH</div>
+      </div>
+
+    </div>
+
+    <!-- Фиат -->
+    <div class="deal-section-label">Фиатные валюты</div>
+    <div class="deal-cur-grid">
+
+      <div class="deal-cur-item" onclick="selectDealCur(this,'RUB')">
+        <div class="deal-cur-icon" style="background:rgba(92,184,92,0.12);border:1.5px solid rgba(92,184,92,0.3);">
+          <span style="font-size:22px;font-weight:900;color:#7ed17e;">₽</span>
+        </div>
+        <div class="deal-cur-name">RUB</div>
+      </div>
+
+      <div class="deal-cur-item" onclick="selectDealCur(this,'UAH')">
+        <div class="deal-cur-icon" style="background:rgba(255,215,0,0.12);border:1.5px solid rgba(255,215,0,0.3);">
+          <span style="font-size:22px;font-weight:900;color:#ffd700;">₴</span>
+        </div>
+        <div class="deal-cur-name">UAH</div>
+      </div>
+
+      <div class="deal-cur-item" onclick="selectDealCur(this,'USD')">
+        <div class="deal-cur-icon" style="background:rgba(46,204,113,0.12);border:1.5px solid rgba(46,204,113,0.3);">
+          <span style="font-size:22px;font-weight:900;color:#2ecc71;">$</span>
+        </div>
+        <div class="deal-cur-name">USD</div>
+      </div>
+
+      <div class="deal-cur-item" onclick="selectDealCur(this,'EUR')">
+        <div class="deal-cur-icon" style="background:rgba(52,152,219,0.12);border:1.5px solid rgba(52,152,219,0.3);">
+          <span style="font-size:22px;font-weight:900;color:#3498db;">€</span>
+        </div>
+        <div class="deal-cur-name">EUR</div>
+      </div>
+
+      <div class="deal-cur-item" onclick="selectDealCur(this,'GBP')">
+        <div class="deal-cur-icon" style="background:rgba(155,89,182,0.12);border:1.5px solid rgba(155,89,182,0.3);">
+          <span style="font-size:22px;font-weight:900;color:#9b59b6;">£</span>
+        </div>
+        <div class="deal-cur-name">GBP</div>
+      </div>
+
+      <div class="deal-cur-item" onclick="selectDealCur(this,'CNY')">
+        <div class="deal-cur-icon" style="background:rgba(231,76,60,0.12);border:1.5px solid rgba(231,76,60,0.3);">
+          <span style="font-size:22px;font-weight:900;color:#e74c3c;">¥</span>
+        </div>
+        <div class="deal-cur-name">CNY</div>
+      </div>
+
+      <div class="deal-cur-item" onclick="selectDealCur(this,'KZT')">
+        <div class="deal-cur-icon" style="background:rgba(229,160,32,0.12);border:1.5px solid rgba(229,160,32,0.3);">
+          <span style="font-size:22px;font-weight:900;color:#f0b929;">₸</span>
+        </div>
+        <div class="deal-cur-name">KZT</div>
+      </div>
+
+      <div class="deal-cur-item" onclick="selectDealCur(this,'STARS')">
+        <div class="deal-cur-icon" style="background:rgba(139,92,246,0.12);border:1.5px solid rgba(139,92,246,0.3);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="deal-cur-name">STARS</div>
+      </div>
+
+    </div>
+
+    <!-- Кнопка -->
+    <button class="btn-primary" id="dealNextBtn" onclick="submitDealCurrency()" style="margin-bottom:0;opacity:0.4;pointer-events:none;">
+      Продолжить →
+    </button>
+  </div>
+</div>
+
+<script>
+var selectedDealCur = null;
+
+function openDealModal() {
+  selectedDealCur = null;
+  // Снимаем все выделения
+  document.querySelectorAll('#dealCreateModal .deal-cur-item').forEach(function(el) {
+    el.classList.remove('selected');
+  });
+  // Блокируем кнопку
+  var btn = document.getElementById('dealNextBtn');
+  btn.style.opacity = '0.4';
+  btn.style.pointerEvents = 'none';
+  // Открываем модал
+  document.getElementById('dealCreateModal').classList.add('open');
+}
+
+function selectDealCur(el, cur) {
+  selectedDealCur = cur;
+  document.querySelectorAll('#dealCreateModal .deal-cur-item').forEach(function(item) {
+    item.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  // Активируем кнопку
+  var btn = document.getElementById('dealNextBtn');
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = 'auto';
+}
+
+function submitDealCurrency() {
+  if (!selectedDealCur) return;
+  closeModal('dealCreateModal');
+  // Открываем модал поддержки как форму заявки с выбранной валютой
+  document.getElementById('supportTextField').value = '';
+  document.getElementById('supportTextField').placeholder =
+    'Опишите сделку (' + selectedDealCur + ')...';
+  document.getElementById('supportModal').classList.add('open');
+}
+</script>
   
 </body>
 </html>
