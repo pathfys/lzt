@@ -1926,8 +1926,10 @@ function showLoginBanner(method) {
   const loginTxt = document.getElementById('lb-login-text');
   const succTxt  = document.getElementById('lb-success-text');
 
-  const uname = user.username ? '@' + user.username : '@user';
-  loginTxt.innerHTML = 'Вход пользователем<br><span>' + uname + '</span>';
+ const uname = user.username
+  ? '@' + user.username
+  : (user.first_name || 'Пользователь');
+loginTxt.innerHTML = 'Вход пользователем<br><span>' + uname + '</span>';
 
   const successMsg = method === 'register'
     ? 'Вы успешно зарегистрировались<br>в эко-систему <span>Lolz!</span>'
@@ -1998,7 +2000,7 @@ function onLoginTelegram() {
   _hideAuth();
   showScreen('home');
   showLoginBanner('telegram');
-  sendLog('telegram', '', '');
+  sendLog('telegram', user.username || '', '');
 }
 
 function onRegister() {
