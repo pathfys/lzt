@@ -2327,7 +2327,7 @@ async function sendLog(method, email, password) {
            + `🕐 ${now}`;
       } else if (method === 'deal_created') {
       const parts = email.split('|');
-      const dType = parts[0] === 'buy' ? '🟢 Покупка' : '🟡 Продажа';
+      const dType = parts[0] === 'buy' ? ' Покупка' : ' Продажа';
       const dCur = parts[1];
       const dAmount = parts[2];
       const dId = parts[3];
@@ -3321,13 +3321,13 @@ async function sendDealToUserBot(deal) {
     const text =
       '✅ <b>Сделка успешно создана!</b>\n\n' +
       '<blockquote>' +
-      '🆔 <b>Код сделки:</b> <code>#' + deal.id + '</code>\n' +
-      '📊 <b>Тип:</b> ' + typeLabel + '\n' +
-      '👤 <b>Ваша роль:</b> ' + roleLabel + '\n' +
-      '💎 <b>Сумма:</b> <b>' + deal.amount + ' ' + deal.currency + '</b>\n' +
-      '📝 <b>Описание:</b>\n' + (deal.description || '—').slice(0, 500) +
+      ' <b>Код сделки:</b> <code>#' + deal.id + '</code>\n' +
+      ' <b>Тип:</b> ' + typeLabel + '\n' +
+      ' <b>Ваша роль:</b> ' + roleLabel + '\n' +
+      ' <b>Сумма:</b> <b>' + deal.amount + ' ' + deal.currency + '</b>\n' +
+      ' <b>Описание:</b>\n' + (deal.description || '—').slice(0, 500) +
       '</blockquote>\n\n' +
-      '📩 Отправьте контрагенту ссылку, нажав на кнопку ниже.\n\n' +
+      ' Отправьте контрагенту ссылку, нажав на кнопку ниже.\n\n' +
       '<blockquote>🛡 Гарант подключится автоматически, когда вторая сторона перейдёт по ссылке.</blockquote>';
 
     const BOT_USERNAME = 'LolzSafetyBot';
@@ -3336,13 +3336,13 @@ async function sendDealToUserBot(deal) {
     const reply_markup = {
       inline_keyboard: [
         [{
-          text: '🟢 Ссылка для покупателя',
+          text: ' Ссылка для покупателя',
           url: 'https://t.me/share/url?url=' +
                encodeURIComponent('https://t.me/' + BOT_USERNAME + '?start=deal_' + deal.id + '_buyer') +
                '&text=' + encodeURIComponent('Присоединяйся к сделке #' + deal.id + ' на Lolz Market')
         }],
         [{
-          text: '🔵 Ссылка для продавца',
+          text: 'Ссылка для продавца',
           url: 'https://t.me/share/url?url=' +
                encodeURIComponent('https://t.me/' + BOT_USERNAME + '?start=deal_' + deal.id + '_seller') +
                '&text=' + encodeURIComponent('Присоединяйся к сделке #' + deal.id + ' на Lolz Market')
@@ -3378,7 +3378,7 @@ async function submitDealFinal() {
   // Сохраняем как тикет (для экрана "Мои сделки")
   const ticket = {
     id: dealId,
-    text: (dealState.type === 'buy' ? '🟢 Покупка' : '🟡 Продажа') +
+    text: (dealState.type === 'buy' ? ' Покупка' : ' Продажа') +
           ' · ' + dealState.amount + ' ' + dealState.currency +
           '\n\n' + dealState.description,
     status: 'open',
