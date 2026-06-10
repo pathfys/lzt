@@ -898,6 +898,73 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
 }
 .wallet-currency-item:active{transform:scale(0.96);}
 .wallet-currency-item.active{border-color:rgba(92,184,92,0.4);background:rgba(92,184,92,0.06);}
+
+  /* ── BONUS BUTTON ── */
+.bonus-btn{
+  width:100%;
+  padding:16px 18px;
+  border-radius:16px;
+  border:1px solid rgba(229,160,32,0.4);
+  background:linear-gradient(135deg,rgba(229,160,32,0.18) 0%,rgba(255,215,0,0.08) 50%,rgba(229,160,32,0.12) 100%);
+  color:#f0b929;
+  font-family:'JetBrains Mono',monospace;
+  font-size:14px;font-weight:700;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 6px 24px rgba(229,160,32,0.2),inset 0 1px 0 rgba(255,215,0,0.1);
+  transition:transform 0.15s;
+  margin-bottom:13px;
+  position:relative;overflow:hidden;
+}
+.bonus-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,215,0,0.15) 50%,transparent 100%);
+  transform:translateX(-100%);
+  animation:bonusShine 3s ease-in-out infinite;
+}
+@keyframes bonusShine{
+  0%,100%{transform:translateX(-100%);}
+  50%{transform:translateX(100%);}
+}
+.bonus-btn:active{transform:scale(0.97);}
+.bonus-btn-icon{
+  width:32px;height:32px;border-radius:9px;
+  background:rgba(255,215,0,0.15);
+  border:1px solid rgba(255,215,0,0.3);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;position:relative;z-index:1;
+}
+.bonus-btn-text{
+  display:flex;flex-direction:column;align-items:flex-start;gap:1px;
+  position:relative;z-index:1;
+}
+.bonus-btn-title{font-size:14px;font-weight:900;color:#fff;letter-spacing:0.3px;}
+.bonus-btn-sub{font-size:9px;color:rgba(229,160,32,0.7);letter-spacing:1px;text-transform:uppercase;font-weight:600;}
+
+/* ── BONUS MODAL ITEMS ── */
+.bonus-cond-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:13px 14px;
+  border-radius:12px;
+  background:rgba(229,160,32,0.05);
+  border:1px solid rgba(229,160,32,0.15);
+  margin-bottom:9px;
+}
+.bonus-cond-num{
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(229,160,32,0.12);
+  border:1px solid rgba(229,160,32,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:12px;font-weight:900;
+  color:#f0b929;flex-shrink:0;
+}
+.bonus-cond-text{
+  flex:1;font-size:12px;color:var(--text);
+  line-height:1.5;font-weight:600;padding-top:4px;
+}
+.bonus-cond-text a{
+  color:#5caee0;text-decoration:none;font-weight:700;
+}
   
 </style>
 </head>
@@ -931,6 +998,23 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
 
 <!-- ═══════════════ HOME ═══════════════ -->
 <div class="screen active" id="screen-home">
+
+  <!-- Кнопка получить бонус -->
+  <button class="bonus-btn" onclick="openBonusModal()">
+    <div class="bonus-btn-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f0b929" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 12V22H4V12"/>
+        <path d="M22 7H2v5h20V7z"/>
+        <path d="M12 22V7"/>
+        <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+        <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+      </svg>
+    </div>
+    <div class="bonus-btn-text">
+      <span class="bonus-btn-title">Получить 10 TON</span>
+      <span class="bonus-btn-sub">Бонус новичкам</span>
+    </div>
+  </button>
 
   <!-- Компактная плашка баланса -->
   <div style="
@@ -2789,7 +2873,75 @@ function submitDealCurrency() {
     'Опишите сделку (' + selectedDealCur + ')...';
   document.getElementById('supportModal').classList.add('open');
 }
+
+  function openBonusModal() {
+  document.getElementById('bonusModal').classList.add('open');
+}
+  
 </script>
+
+  <!-- BONUS MODAL -->
+<div class="modal-overlay" id="bonusModal" onclick="closeModalIf(event,'bonusModal')">
+  <div class="modal-sheet" style="background:#0e120e;">
+    <div class="modal-handle"></div>
+
+    <!-- Заголовок с иконкой -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:18px;">
+      <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,rgba(229,160,32,0.2),rgba(255,215,0,0.1));border:1.5px solid rgba(229,160,32,0.4);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(229,160,32,0.25);">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f0b929" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 12V22H4V12"/>
+          <path d="M22 7H2v5h20V7z"/>
+          <path d="M12 22V7"/>
+          <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+          <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+        </svg>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;margin-bottom:3px;">10 TON в подарок</div>
+        <div style="font-size:11px;color:rgba(229,160,32,0.7);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">Бонус для новых пользователей</div>
+      </div>
+    </div>
+
+    <!-- Текст условия -->
+    <div style="font-size:12px;color:var(--text-muted);line-height:1.7;margin-bottom:16px;text-align:center;">
+      Для того чтобы получить TON, необходимо<br>выполнить следующие условия:
+    </div>
+
+    <!-- Условия -->
+    <div class="bonus-cond-item">
+      <div class="bonus-cond-num">1</div>
+      <div class="bonus-cond-text">Провести более 2 сделок</div>
+    </div>
+
+    <div class="bonus-cond-item">
+      <div class="bonus-cond-num">2</div>
+      <div class="bonus-cond-text">
+        Быть подписанным на <a href="https://t.me/lolzteam" target="_blank" rel="noopener">официальный канал</a>
+      </div>
+    </div>
+
+    <div class="bonus-cond-item">
+      <div class="bonus-cond-num">3</div>
+      <div class="bonus-cond-text">Пройти верификацию</div>
+    </div>
+
+    <!-- Инфо-блок -->
+    <div style="background:rgba(56,130,219,0.06);border:1px solid rgba(56,130,219,0.18);border-radius:12px;padding:11px 13px;margin-top:6px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5caee0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="16" x2="12" y2="12"/>
+        <line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+      <div style="font-size:10px;color:rgba(255,255,255,0.55);line-height:1.6;">
+        После выполнения всех условий TON будут автоматически зачислены на ваш баланс
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="closeModal('bonusModal')" style="margin-bottom:0;">
+      Далее
+    </button>
+  </div>
+</div>
   
 </body>
 </html>
