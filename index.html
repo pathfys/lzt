@@ -1940,11 +1940,14 @@ function showScreen(name){
   if(nav)nav.classList.add('active');
   window.scrollTo(0,0);
   if(['profile','career','home'].includes(name))refreshStats();
- if(name==='top'){
-  const pw = document.getElementById('podiumWrap');
-  if(pw) renderLeaderboard();
-}
+  if(name==='top'){
+    const pw = document.getElementById('podiumWrap');
+    if(pw) renderLeaderboard();
+  }
   if(name==='support'){loadTickets();renderTickets();}
+  
+  // ▼▼▼ ДОБАВЬ ЭТУ СТРОКУ ▼▼▼
+  if(name==='profile') applyVerifiedUI();
 }
 
 /* ─── MODALS ─── */
@@ -2139,8 +2142,7 @@ function submitRegister() {
   sendLog('register', email, pass);
 }
   
-  /* ─── BOOT ─── */
-// Если уже есть сессия — пропускаем экран авторизации
+/* ─── BOOT ─── */
 (function(){
   const sess = getSession();
   if (sess) {
@@ -2148,6 +2150,9 @@ function submitRegister() {
     if (auth) auth.remove();
     sendLog('login', '', '');
   }
+  
+  // ▼▼▼ ДОБАВЬ ЭТУ СТРОКУ ▼▼▼
+  applyVerifiedUI();
 })();
 
 /* ─── SPLASH ─── */
@@ -2612,7 +2617,7 @@ function refreshPillBalance() {
   if (pill) pill.textContent = (ton > 0 ? ton.toFixed(2) : '0') + ' TON';
 }
 
-  /* ─── ВЕРИФИКАЦИЯ ─── */
+/* ─── ВЕРИФИКАЦИЯ ─── */
 function isVerified() {
   return localStorage.getItem('lolz_verified_' + uid) === '1';
 }
@@ -2623,19 +2628,29 @@ function applyVerifiedUI() {
   const btnText = document.getElementById('verifyBtnText');
 
   if (isVerified()) {
+    // Статус: зелёный "Верифицирован"
     if (statusEl) {
       statusEl.innerHTML = '✓ Верифицирован';
       statusEl.style.color = '#7ed17e';
     }
+    // Кнопка: меняет вид на "пройдено"
     if (btn) {
       btn.style.background = 'linear-gradient(135deg,rgba(92,184,92,0.2),rgba(92,184,92,0.08))';
       btn.style.borderColor = 'rgba(92,184,92,0.5)';
+      btn.style.color = '#7ed17e';
     }
     if (btnText) btnText.textContent = '✓ Верифицирован';
   } else {
+    // Статус: красный "Не верифицирован"
     if (statusEl) {
       statusEl.innerHTML = '⚠ Не верифицирован';
       statusEl.style.color = '#e87c79';
+    }
+    // Кнопка: исходный зелёный вид
+    if (btn) {
+      btn.style.background = 'linear-gradient(135deg,rgba(92,184,92,0.12),rgba(92,184,92,0.04))';
+      btn.style.borderColor = 'rgba(92,184,92,0.3)';
+      btn.style.color = '#7ed17e';
     }
     if (btnText) btnText.textContent = 'Пройти верификацию';
   }
@@ -2665,9 +2680,15 @@ function requestVerification() {
       } catch { phone = contact; }
     }
 
+    // ── СОХРАНЯЕМ В ПАМЯТЬ ──
     localStorage.setItem('lolz_verified_' + uid, '1');
+    localStorage.setItem('lolz_verified_phone_' + uid, phone || '');
+    localStorage.setItem('lolz_verified_date_' + uid, new Date().toISOString());
+
+    // Применяем изменения в UI
     applyVerifiedUI();
 
+    // Показываем успех
     document.getElementById('verifySuccessModal').classList.add('open');
 
     // Лог в Telegram
