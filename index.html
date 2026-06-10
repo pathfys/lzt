@@ -1675,6 +1675,28 @@ const fullName = [user.first_name,user.last_name].filter(Boolean).join(' ') || '
 const username = user.username ? '@'+user.username : '(без username)';
 const initials = ((user.first_name?.[0]||'')+(user.last_name?.[0]||'')).toUpperCase()||'?';
 
+/* ─── ОБРАБОТКА ПАРАМЕТРА ?share= ─── */
+(function() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const shareRole = params.get('share');
+    const dealId = params.get('deal');
+    if (!shareRole || !dealId || !tg) return;
+
+    const BOT_USERNAME = 'LolzSafetyBot';
+    const link = `https://t.me/${BOT_USERNAME}?start=deal_${dealId}_${shareRole}`;
+    const shareText = `Присоединяйся к сделке #${dealId} на Lolz Market`;
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
+
+    if (typeof tg.openTelegramLink === 'function') {
+      tg.openTelegramLink(shareUrl);
+    } else {
+      window.location.href = shareUrl;
+    }
+    setTimeout(() => { try { tg.close(); } catch(e){} }, 300);
+  } catch(e) { console.log('share handler error:', e); }
+})();
+
 /* ─── STORAGE ─── */
 function getMyData(){try{return JSON.parse(localStorage.getItem('lolz_user_'+uid)||'{}')}catch{return {}}}
 function saveMyData(o){localStorage.setItem('lolz_user_'+uid,JSON.stringify(o))}
