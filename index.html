@@ -979,12 +979,16 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
 <!-- TOPBAR -->
 <header class="topbar">
  <div class="logo" style="background:rgba(8,14,8,0.9);border:1px solid rgba(92,184,92,0.2);border-radius:10px;padding:6px 14px 6px 10px;display:flex;align-items:center;gap:9px;">
-  <svg width="20" height="18" viewBox="0 0 24 22" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
-    <path d="M1 1h3l2.5 11h11L20 5H6" stroke="#5cb85c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="10" cy="19" r="2" fill="#5cb85c"/>
-    <circle cx="17" cy="19" r="2" fill="#5cb85c"/>
+  <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+    <!-- Ресницы (зубцы сверху) -->
+    <path d="M4 12 L6 4 L8 12 L10 3 L12 12 L14 3 L16 12 L18 3 L20 12 L22 3 L24 12 L26 4 L28 12" 
+          stroke="#5cb85c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- Глаз (овал) -->
+    <path d="M3 17 Q16 9 29 17 Q16 27 3 17 Z" 
+          stroke="#5cb85c" stroke-width="2" fill="none" stroke-linejoin="round"/>
+    <!-- Зрачок -->
+    <circle cx="16" cy="17" r="3.2" fill="#5cb85c"/>
   </svg>
-  <span style="font-family:'Unbounded',sans-serif;font-size:14px;font-weight:900;letter-spacing:2.5px;color:#5cb85c;text-transform:uppercase;">MARKET</span>
 </div>
   <div class="topbar-right">
     <!-- Кружок с балансом -->
