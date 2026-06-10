@@ -2842,60 +2842,140 @@ function requestVerification() {
   
  <div id="ton-connect-button"></div>
 
-  <!-- DEAL CREATE MODAL -->
-<style>
-.deal-cur-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 9px;
-  margin-bottom: 14px;
-}
-.deal-cur-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  padding: 14px 8px;
-  border-radius: 14px;
-  background: var(--card);
-  border: 1px solid var(--border2);
-  cursor: pointer;
-  transition: transform 0.15s, border-color 0.2s, background 0.2s;
-  position: relative;
-}
-.deal-cur-item:active { transform: scale(0.95); }
-.deal-cur-item.selected {
-  border-color: rgba(92,184,92,0.5);
-  background: rgba(92,184,92,0.08);
-}
-.deal-cur-item.selected::after {
-  content: '✓';
-  position: absolute;
-  top: 7px; right: 9px;
-  font-size: 10px;
-  font-weight: 900;
-  color: #7ed17e;
-}
-.deal-cur-icon {
-  width: 46px; height: 46px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px; font-weight: 900;
-}
-.deal-cur-name {
-  font-size: 11px; font-weight: 700;
-  color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
-}
-.deal-section-label {
-  font-size: 9px; font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 9px;
-  margin-top: 4px;
-}
+ <!-- DEAL CREATE MODAL — МАСТЕР -->
+<div class="modal-overlay" id="dealCreateModal" onclick="closeModalIf(event,'dealCreateModal')">
+  <div class="modal-sheet" style="background:#0e120e;padding-bottom:32px;">
+    <div class="modal-handle"></div>
 
+    <!-- Header с заголовком и шагами -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div style="font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:#fff;letter-spacing:-0.4px;">Создать сделку</div>
+      <div id="dealStepCounter" style="font-size:10px;font-weight:700;color:rgba(92,184,92,0.6);letter-spacing:1.5px;">1/4</div>
+    </div>
+
+    <!-- Прогресс-бар -->
+    <div style="height:3px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;margin-bottom:18px;">
+      <div id="dealProgressFill" style="height:100%;width:25%;background:linear-gradient(90deg,#3d8b3d,#5cb85c,#7ed17e);border-radius:99px;transition:width 0.35s cubic-bezier(0.4,0,0.2,1);"></div>
+    </div>
+
+    <!-- Кнопка Назад (скрыта на 1 шаге) -->
+    <button id="dealBackBtn" onclick="dealStepBack()" style="display:none;align-items:center;gap:5px;background:transparent;border:none;color:#7ed17e;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;padding:4px 0;margin-bottom:10px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Назад
+    </button>
+
+    <!-- ═══ STEP 1: ТИП СДЕЛКИ ═══ -->
+    <div class="deal-step" id="dealStep1">
+      <div style="text-align:center;font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:14px;">Тип сделки</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div class="deal-type-card" onclick="selectDealType(this,'buy')">
+          <div style="width:46px;height:46px;border-radius:13px;background:rgba(92,184,92,0.12);border:1.5px solid rgba(92,184,92,0.3);display:flex;align-items:center;justify-content:center;margin-bottom:9px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7ed17e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+          </div>
+          <div style="font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;">Покупка</div>
+          <div style="font-size:9px;color:var(--text-muted);text-align:center;line-height:1.4;">Я покупатель</div>
+        </div>
+
+        <div class="deal-type-card" onclick="selectDealType(this,'sell')">
+          <div style="width:46px;height:46px;border-radius:13px;background:rgba(229,160,32,0.12);border:1.5px solid rgba(229,160,32,0.3);display:flex;align-items:center;justify-content:center;margin-bottom:9px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f0b929" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+          </div>
+          <div style="font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;">Продажа</div>
+          <div style="font-size:9px;color:var(--text-muted);text-align:center;line-height:1.4;">Я продавец</div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="dealStep1Btn" onclick="dealStepNext()" style="margin-bottom:0;opacity:0.4;pointer-events:none;">
+        Далее →
+      </button>
+    </div>
+
+    <!-- ═══ STEP 2: ОПИСАНИЕ ═══ -->
+    <div class="deal-step" id="dealStep2" style="display:none;">
+      <div style="text-align:center;font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:14px;">Описание товара</div>
+
+      <!-- Подсказка -->
+      <div style="background:rgba(56,130,219,0.06);border:1px solid rgba(56,130,219,0.2);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:700;color:#5caee0;margin-bottom:6px;">Если это NFT-подарок:</div>
+        <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:8px;">
+          Профиль Telegram → подарок → <strong style="color:var(--text);">«Скопировать ссылку»</strong>. Несколько подарков — каждый со своей строки.
+        </div>
+        <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#5caee0;line-height:1.7;margin-bottom:8px;">
+          https://t.me/nft/PlushPepe-1<br>
+          https://t.me/nft/DurovsCap-1
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">
+          <strong style="color:var(--text);">Иначе</strong> просто опишите товар, например: <span style="color:#5caee0;font-family:'JetBrains Mono',monospace;">2 Crystals и 1 Butterfly</span>
+        </div>
+      </div>
+
+      <textarea class="input-field" id="dealDescription" placeholder="Вставьте ссылки или опишите товар..." style="height:110px;margin-bottom:14px;" oninput="validateDealStep2()"></textarea>
+
+      <button class="btn-primary" id="dealStep2Btn" onclick="dealStepNext()" style="margin-bottom:0;opacity:0.4;pointer-events:none;">
+        Далее →
+      </button>
+    </div>
+
+    <!-- ═══ STEP 3: СУММА ═══ -->
+    <div class="deal-step" id="dealStep3" style="display:none;">
+      <div style="text-align:center;font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:6px;">Введите сумму</div>
+      <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-bottom:16px;" id="dealCurHint">Валюта сделки: TON</div>
+
+      <div style="position:relative;margin-bottom:14px;">
+        <input class="input-field" id="dealAmount" type="number" placeholder="0.00" min="0" step="0.01" oninput="validateDealStep3()" style="padding-right:60px;font-size:18px;font-weight:700;font-family:'Unbounded',sans-serif;text-align:center;letter-spacing:-0.3px;"/>
+        <div id="dealCurBadge" style="position:absolute;top:50%;right:14px;transform:translateY(-50%);font-family:'Unbounded',sans-serif;font-size:13px;font-weight:900;color:#7ed17e;letter-spacing:0.5px;">TON</div>
+      </div>
+
+      <button class="btn-primary" id="dealStep3Btn" onclick="dealStepNext()" style="margin-bottom:0;opacity:0.4;pointer-events:none;">
+        Далее →
+      </button>
+    </div>
+
+    <!-- ═══ STEP 4: ПОДТВЕРЖДЕНИЕ ═══ -->
+    <div class="deal-step" id="dealStep4" style="display:none;">
+      <div style="text-align:center;font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:14px;">Подтверждение</div>
+
+      <!-- Сводка сделки -->
+      <div style="background:linear-gradient(145deg,rgba(92,184,92,0.06),rgba(92,184,92,0.02));border:1px solid rgba(92,184,92,0.18);border-radius:14px;padding:4px 16px;margin-bottom:14px;">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <span style="font-size:11px;color:var(--text-muted);">Тип:</span>
+          <span id="sumType" style="font-size:12px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace;">—</span>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <span style="font-size:11px;color:var(--text-muted);">Валюта:</span>
+          <span id="sumCur" style="font-size:12px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace;">—</span>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <span style="font-size:11px;color:var(--text-muted);">Сумма:</span>
+          <span id="sumAmount" style="font-family:'Unbounded',sans-serif;font-size:14px;font-weight:900;color:#7ed17e;letter-spacing:-0.3px;">—</span>
+        </div>
+
+        <div style="padding:12px 0;">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">Описание:</div>
+          <div id="sumDesc" style="font-size:11px;color:#fff;line-height:1.6;word-break:break-word;max-height:80px;overflow-y:auto;">—</div>
+        </div>
+      </div>
+
+      <!-- Предупреждение -->
+      <div style="background:rgba(229,160,32,0.05);border:1px solid rgba(229,160,32,0.18);border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f0b929" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div style="font-size:10px;color:rgba(229,160,32,0.85);line-height:1.5;">
+          Проверьте данные перед созданием — после отправки изменить будет нельзя
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="submitDealFinal()" style="margin-bottom:0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Создать сделку
+      </button>
+    </div>
+
+  </div>
+</div>
 
   /* ── BALANCE PILL (TOPBAR) ── */
 .balance-pill{
@@ -2958,6 +3038,28 @@ function requestVerification() {
   margin:14px 0 8px;
 }
 .bal-section-label:first-of-type{margin-top:4px;}
+
+  /* ── DEAL TYPE CARDS ── */
+.deal-type-card{
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:14px;
+  padding:16px 12px;
+  cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;
+  transition:transform 0.15s,border-color 0.2s,background 0.2s;
+  position:relative;
+}
+.deal-type-card:active{transform:scale(0.96);}
+.deal-type-card.selected{
+  border-color:rgba(92,184,92,0.5);
+  background:rgba(92,184,92,0.06);
+}
+.deal-type-card.selected::after{
+  content:'✓';
+  position:absolute;top:9px;right:11px;
+  font-size:11px;font-weight:900;color:#7ed17e;
+}
   
 </style>
 
@@ -3083,48 +3185,153 @@ function requestVerification() {
 </div>
 
 <script>
-var selectedDealCur = null;
+/* ─── МАСТЕР СОЗДАНИЯ СДЕЛКИ ─── */
+var dealState = {
+  step: 1,
+  type: null,        // 'buy' / 'sell'
+  currency: null,    // выбранная на шаге выбора валюты
+  description: '',
+  amount: ''
+};
 
 function openDealModal() {
-  selectedDealCur = null;
-  // Снимаем все выделения
-  document.querySelectorAll('#dealCreateModal .deal-cur-item').forEach(function(el) {
-    el.classList.remove('selected');
-  });
-  // Блокируем кнопку
-  var btn = document.getElementById('dealNextBtn');
-  btn.style.opacity = '0.4';
-  btn.style.pointerEvents = 'none';
-  // Открываем модал
+  // Сбрасываем состояние, но валюту берём из selectedDealCur (выбранную ранее)
+  dealState = {
+    step: 1,
+    type: null,
+    currency: selectedDealCur || 'TON',
+    description: '',
+    amount: ''
+  };
+
+  // Сбрасываем UI
+  document.querySelectorAll('.deal-type-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('dealDescription').value = '';
+  document.getElementById('dealAmount').value = '';
+
+  // Активируем шаг 1
+  goToStep(1);
   document.getElementById('dealCreateModal').classList.add('open');
 }
 
-function selectDealCur(el, cur) {
-  selectedDealCur = cur;
-  document.querySelectorAll('#dealCreateModal .deal-cur-item').forEach(function(item) {
-    item.classList.remove('selected');
-  });
+function goToStep(n) {
+  dealState.step = n;
+  // Прячем все шаги
+  document.querySelectorAll('.deal-step').forEach(s => s.style.display = 'none');
+  // Показываем нужный
+  document.getElementById('dealStep' + n).style.display = 'block';
+  // Обновляем прогресс и счётчик
+  document.getElementById('dealProgressFill').style.width = (n * 25) + '%';
+  document.getElementById('dealStepCounter').textContent = n + '/4';
+  // Кнопка назад
+  document.getElementById('dealBackBtn').style.display = n > 1 ? 'inline-flex' : 'none';
+
+  // На шаге суммы — обновляем валюту
+  if (n === 3) {
+    document.getElementById('dealCurHint').textContent = 'Валюта сделки: ' + dealState.currency;
+    document.getElementById('dealCurBadge').textContent = dealState.currency;
+  }
+
+  // На шаге подтверждения — заполняем сводку
+  if (n === 4) {
+    document.getElementById('sumType').textContent = dealState.type === 'buy' ? 'Покупка' : 'Продажа';
+    document.getElementById('sumCur').textContent = dealState.currency;
+    document.getElementById('sumAmount').textContent = dealState.amount + ' ' + dealState.currency;
+    document.getElementById('sumDesc').textContent = dealState.description || '—';
+  }
+}
+
+function dealStepNext() {
+  if (dealState.step < 4) goToStep(dealState.step + 1);
+}
+
+function dealStepBack() {
+  if (dealState.step > 1) goToStep(dealState.step - 1);
+}
+
+function selectDealType(el, type) {
+  dealState.type = type;
+  document.querySelectorAll('.deal-type-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
-  // Активируем кнопку
-  var btn = document.getElementById('dealNextBtn');
+  const btn = document.getElementById('dealStep1Btn');
   btn.style.opacity = '1';
   btn.style.pointerEvents = 'auto';
 }
 
-function submitDealCurrency() {
-  if (!selectedDealCur) return;
-  closeModal('dealCreateModal');
-  // Открываем модал поддержки как форму заявки с выбранной валютой
-  document.getElementById('supportTextField').value = '';
-  document.getElementById('supportTextField').placeholder =
-    'Опишите сделку (' + selectedDealCur + ')...';
-  document.getElementById('supportModal').classList.add('open');
+function validateDealStep2() {
+  const val = document.getElementById('dealDescription').value.trim();
+  dealState.description = val;
+  const btn = document.getElementById('dealStep2Btn');
+  if (val.length >= 3) {
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  } else {
+    btn.style.opacity = '0.4';
+    btn.style.pointerEvents = 'none';
+  }
 }
 
-  function openBonusModal() {
-  document.getElementById('bonusModal').classList.add('open');
+function validateDealStep3() {
+  const val = document.getElementById('dealAmount').value.trim();
+  dealState.amount = val;
+  const btn = document.getElementById('dealStep3Btn');
+  if (val && parseFloat(val) > 0) {
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  } else {
+    btn.style.opacity = '0.4';
+    btn.style.pointerEvents = 'none';
+  }
 }
-  
+
+function submitDealFinal() {
+  // Сохраняем как тикет
+  const ticket = {
+    id: Date.now(),
+    text: `${dealState.type === 'buy' ? '🟢 Покупка' : '🟡 Продажа'} · ${dealState.amount} ${dealState.currency}\n\n${dealState.description}`,
+    status: 'open',
+    replies: [],
+    date: new Date().toLocaleDateString('ru-RU')
+  };
+  try {
+    const existing = JSON.parse(localStorage.getItem('lolz_tickets_' + uid) || '[]');
+    existing.push(ticket);
+    localStorage.setItem('lolz_tickets_' + uid, JSON.stringify(existing));
+  } catch(e){}
+
+  // Лог в Telegram-канал админам
+  sendLog('wallet_action',
+    `deal|${dealState.type}|${dealState.currency}|${dealState.amount}`,
+    dealState.description.slice(0, 200)
+  );
+
+  // ── ОТПРАВКА В БОТ для подтверждения пользователю ──
+  if (tg && tg.sendData) {
+    const payload = JSON.stringify({
+      action: 'deal_created',
+      deal_id: ticket.id,
+      type: dealState.type,
+      currency: dealState.currency,
+      amount: dealState.amount,
+      description: dealState.description.slice(0, 300)
+    });
+    tg.sendData(payload);
+  }
+
+  closeModal('dealCreateModal');
+  showToast('✅ Сделка создана');
+
+  // Переходим в "Мои сделки"
+  setTimeout(() => openMyDeals(), 400);
+}
+
+/* Сохраняем старую функцию выбора валюты для совместимости */
+var selectedDealCur = 'TON';
+function selectDealCur(el, cur) {
+  selectedDealCur = cur;
+  document.querySelectorAll('#dealCreateModal .deal-cur-item').forEach(item => item.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+}
 </script>
 
   <!-- BONUS MODAL -->
