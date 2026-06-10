@@ -2631,6 +2631,10 @@ function refreshPillBalance() {
   const pill = document.getElementById('pillBalance');
   if (pill) pill.textContent = (ton > 0 ? ton.toFixed(2) : '0') + ' TON';
 }
+  /* ─── BONUS MODAL ─── */
+function openBonusModal() {
+  document.getElementById('bonusModal').classList.add('open');
+}
 
 /* ─── ВЕРИФИКАЦИЯ ─── */
 function isVerified() {
@@ -3090,21 +3094,18 @@ var dealState = {
 };
 
 function openDealModal() {
-  // Сбрасываем состояние, но валюту берём из selectedDealCur (выбранную ранее)
   dealState = {
     step: 1,
     type: null,
-    currency: selectedDealCur || 'TON',
+    currency: 'TON',
     description: '',
     amount: ''
   };
 
-  // Сбрасываем UI
   document.querySelectorAll('.deal-type-card').forEach(c => c.classList.remove('selected'));
   document.getElementById('dealDescription').value = '';
   document.getElementById('dealAmount').value = '';
 
-  // Активируем шаг 1
   goToStep(1);
   document.getElementById('dealCreateModal').classList.add('open');
 }
