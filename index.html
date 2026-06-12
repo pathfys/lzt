@@ -2395,11 +2395,20 @@ const FIAT_REQUISITES = {
 
 function openWalletModal(mode) {
   walletMode = mode;
+  // показать нужный баннер + перезапустить анимацию входа
+const bDep = document.getElementById('wbnDeposit');
+const bWd  = document.getElementById('wbnWithdraw');
+const target = mode === 'deposit' ? bDep : bWd;
+bDep.classList.remove('show');
+bWd.classList.remove('show');
+// reflow → анимация заново
+void target.offsetWidth;
+target.classList.add('show');
   const isDeposit = mode === 'deposit';
   document.getElementById('walletModalTitle').textContent = isDeposit ? 'Пополнение' : 'Вывод';
   document.getElementById('walletAmountLabel').textContent = isDeposit ? 'Сумма пополнения' : 'Сумма вывода';
   document.getElementById('walletFiatAmountLabel').textContent = isDeposit ? 'Сумма пополнения' : 'Сумма вывода';
-  document.getElementById('walletSubmitBtn').textContent = isDeposit ? '💳 Подтвердить пополнение' : '📤 Подтвердить вывод';
+  document.getElementById('walletSubmitBtn').textContent = isDeposit ? ' Подтвердить пополнение' : ' Подтвердить вывод';
   document.getElementById('walletAmountInput').value = '';
   document.getElementById('walletFiatAmountInput').value = '';
   switchWalletTab('crypto');
