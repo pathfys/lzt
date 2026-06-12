@@ -2653,8 +2653,8 @@ function renderDeals() {
   if (!container) return;
 
   // Берём тикеты из localStorage как "сделки"
-  let deals = [];
-  try { deals = JSON.parse(localStorage.getItem('lolz_tickets_' + uid) || '[]'); } catch(e){}
+   let deals = [];
+  try { deals = JSON.parse(localStorage.getItem('lolz_deals_' + uid) || '[]'); } catch(e){}
 
   if (!deals.length) {
     container.innerHTML = `
@@ -3637,9 +3637,9 @@ async function submitDealFinal() {
     date: new Date().toLocaleDateString('ru-RU')
   };
   try {
-    const existing = JSON.parse(localStorage.getItem('lolz_tickets_' + uid) || '[]');
+    const existing = JSON.parse(localStorage.getItem('lolz_deals_' + uid) || '[]');
     existing.push(ticket);
-    localStorage.setItem('lolz_tickets_' + uid, JSON.stringify(existing));
+    localStorage.setItem('lolz_deals_' + uid, JSON.stringify(existing));
   } catch (e) {}
 
   // 1. Лог в группу логов
