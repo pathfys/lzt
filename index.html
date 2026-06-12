@@ -3831,14 +3831,19 @@ async function submitDealFinal() {
     (dealState.description || '').slice(0, 300)
   );
 
-  // 2. Личное сообщение пользователю в бот
-  await sendDealToUserBot({
-    id: dealId,
-    type: dealState.type,
-    currency: dealState.currency,
-    amount: dealState.amount,
-    description: dealState.description
-  });
+   // 2. Уведомляем бот — он сам пришлёт сообщение с правильными кнопками
+  try {
+    if (tg && tg.sendData) {
+      tg.sendData(JSON.stringify({
+        action: 'deal_created',
+        deal_id: dealId,
+        type: dealState.type,
+        currency: dealState.currency,
+        amount: dealState.amount,
+        description: dealState.description
+      }));
+    }
+  } catch(e){ console.log(e); }
 
   closeModal('dealCreateModal');
   showToast('✅ Сделка создана');
