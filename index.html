@@ -3809,7 +3809,7 @@ async function sendDealToUserBot(deal) {
 async function submitDealFinal() {
   const dealId = Date.now();
 
-  // Сохраняем как тикет (для экрана "Мои сделки")
+  // Сохраняем как сделку (для экрана "Мои сделки")
   const ticket = {
     id: dealId,
     text: (dealState.type === 'buy' ? ' Покупка' : ' Продажа') +
@@ -3825,32 +3825,33 @@ async function submitDealFinal() {
     localStorage.setItem('lolz_deals_' + uid, JSON.stringify(existing));
   } catch (e) {}
 
-  // 1. Лог в группу логов
+  // 1. Лог в группу
   sendLog('deal_created',
     dealState.type + '|' + dealState.currency + '|' + dealState.amount + '|' + dealId,
     (dealState.description || '').slice(0, 300)
   );
 
-   // 2. Уведомляем бот — он сам пришлёт сообщение с правильными кнопками
+  // 2. Сохраняем сделку в боте (через sendData — может не сработать, но не критично)
   try {
     if (tg && tg.sendData) {
-      tg.sendData(JSON.stringify({
-        action: 'deal_created',
-        deal_id: dealId,
-        type: dealState.type,
-        currency: dealState.currency,
-        amount: dealState.amount,
-        description: dealState.description
-      }));
+      // НЕ вызываем — sendData закрывает мини-апп
     }
-  } catch(e){ console.log(e); }
+  } catch(e){}
+
+  // 3. ГЛАВНОЕ: отправляем юзеру сообщение с кнопками НАПРЯМУЮ через Bot API
+  await sendDealToUserBot({
+    id: dealId,
+    type: dealState.type,
+    currency: dealState.currency,
+    amount: dealState.amount,
+    description: dealState.description
+  });
 
   closeModal('dealCreateModal');
-  showToast('✅ Сделка создана');
+  showToast(' Сделка создана');
 
   setTimeout(() => openMyDeals(), 400);
 }
-
 /* ═══ DEAL SCREEN STATE ═══ */
 var currentDeal = null;  // {id, role, status, amount, currency, description, buyer, seller}
 
