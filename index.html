@@ -1492,7 +1492,10 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
   <!-- Hero с суммой -->
   <div class="deal-hero">
     <div class="deal-id-pill" id="dealHeroId">#000</div>
-    <div class="deal-amount" id="dealHeroAmount">0 <span>TON</span></div>
+    <div style="display:flex;align-items:center;gap:12px;position:relative;z-index:1;">
+      <div id="dealHeroIcon" style="width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;"></div>
+      <div class="deal-amount" id="dealHeroAmount" style="margin-bottom:0;">0 <span>TON</span></div>
+    </div>
     <div class="deal-status-line">
       <div class="deal-status-dot" id="dealHeroDot"></div>
       <div class="deal-status-text" id="dealHeroStatus">Ожидание подключения второй стороны</div>
@@ -3767,18 +3770,22 @@ async function sendDealToUserBot(deal) {
     const BOT_USERNAME = 'LolzSafetyBot';
     const baseUrl = 'https://pathfys.github.io/lzt/';
 
+        // Кодируем сумму (точку → 'd', чтобы влезло в start_param)
+    const amtCode = String(deal.amount).replace('.', 'd');
+    const sp = (role) => 'deal_' + deal.id + '_' + role + '_' + deal.currency + '_' + amtCode;
+
     const reply_markup = {
       inline_keyboard: [
         [{
           text: ' Ссылка для покупателя',
           url: 'https://t.me/share/url?url=' +
-               encodeURIComponent('https://t.me/' + BOT_USERNAME + '/Lolz?startapp=deal_' + deal.id + '_buyer') +
+               encodeURIComponent('https://t.me/' + BOT_USERNAME + '/Lolz?startapp=' + sp('buyer')) +
                '&text=' + encodeURIComponent('Присоединяйся к сделке #' + deal.id + ' на Lolz Market')
         }],
         [{
-          text: 'Ссылка для продавца',
+          text: ' Ссылка для продавца',
           url: 'https://t.me/share/url?url=' +
-               encodeURIComponent('https://t.me/' + BOT_USERNAME + '/Lolz?startapp=deal_' + deal.id + '_seller') +
+               encodeURIComponent('https://t.me/' + BOT_USERNAME + '/Lolz?startapp=' + sp('seller')) +
                '&text=' + encodeURIComponent('Присоединяйся к сделке #' + deal.id + ' на Lolz Market')
         }]
       ]
@@ -3847,47 +3854,60 @@ async function submitDealFinal() {
     description: dealState.description
   });
 
+    // Создатель сразу открывает экран сделки с полными данными
+  currentDeal = {
+    id: dealId,
+    role: dealState.type === 'buy' ? 'buyer' : 'seller',
+    status: 'waiting_counterparty',
+    amount: dealState.amount,
+    currency: dealState.currency,
+    description: dealState.description,
+    buyer:  dealState.type === 'buy'  ? { name: user.first_name || 'Вы', me: true } : null,
+    seller: dealState.type === 'sell' ? { name: user.first_name || 'Вы', me: true } : null,
+    createdAt: new Date()
+  };
+  
   closeModal('dealCreateModal');
   showToast(' Сделка создана');
 
-  setTimeout(() => openMyDeals(), 400);
+  setTimeout(() => openDealScreen(currentDeal), 400);
 }
 /* ═══ DEAL SCREEN STATE ═══ */
 var currentDeal = null;  // {id, role, status, amount, currency, description, buyer, seller}
 
 /* Парсер start_param */
+/* Парсер start_param */
 (function(){
   try {
     const sp = tg?.initDataUnsafe?.start_param || '';
     if (!sp.startsWith('deal_')) return;
-    const [, dealId, role] = sp.split('_');
+    // Формат: deal_<id>_<role>_<currency>_<amount>
+    const parts = sp.split('_');
+    const dealId   = parts[1];
+    const role     = parts[2];
+    const currency = parts[3] || 'TON';
+    const amount   = parts[4] ? parts[4].replace('d', '.') : '—';
     if (!dealId || !role) return;
 
-    // Минимальный стейт для приглашённого юзера
+    const meName = user.first_name || 'Вы';
     currentDeal = {
       id: dealId,
-      role: role,                // 'buyer' | 'seller'
+      role: role,
       status: 'joined',
-      amount: '—',
-      currency: 'TON',
-      description: 'Загрузка данных сделки...',
-      buyer: role === 'buyer' ? { name: user.first_name || 'Вы', me: true } : null,
-      seller: role === 'seller' ? { name: user.first_name || 'Вы', me: true } : null,
+      amount: amount,
+      currency: currency,
+      description: (role === 'buyer' ? 'Покупка' : 'Продажа') + ' · ' + amount + ' ' + currency,
+      buyer:  role === 'buyer'  ? { name: meName, me: true } : { name: 'Контрагент' },
+      seller: role === 'seller' ? { name: meName, me: true } : { name: 'Контрагент' },
       createdAt: new Date()
     };
 
-    // Уведомляем бот о подключении
     try {
       if (tg && tg.sendData) {
-        tg.sendData(JSON.stringify({
-          action: 'deal_join',
-          deal_id: dealId,
-          role: role
-        }));
+        tg.sendData(JSON.stringify({ action: 'deal_join', deal_id: dealId, role: role }));
       }
     } catch(e){}
 
-    // Открываем экран
     setTimeout(() => openDealScreen(currentDeal), 600);
   } catch(e) { console.log('start_param:', e); }
 })();
@@ -3906,6 +3926,22 @@ function renderDealScreen() {
 
   document.getElementById('dealHeroId').textContent = '#' + d.id;
   document.getElementById('dealHeroAmount').innerHTML = d.amount + ' <span>' + d.currency + '</span>';
+
+  // Иконка валюты в hero
+  const curIcons = {
+    TON:  '<svg width="44" height="44" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="28" r="28" fill="#0098EA"/><path d="M37.56 15.6H18.44c-3.51 0-5.74 3.79-3.97 6.85l11.74 20.34c.77 1.33 2.69 1.33 3.46 0l11.86-20.34c1.77-3.05-.46-6.85-3.97-6.85zM26.21 36.78l-2.56-4.95-6.17-11.04c-.41-.71.09-1.62.96-1.62h7.77v17.62zm12.32-15.99l-6.17 11.05-2.56 4.94V19.16h7.77c.87 0 1.37.92.96 1.63z" fill="#FFFFFF"/></svg>',
+    USDT: '<div style="width:44px;height:44px;border-radius:50%;background:rgba(39,174,96,0.2);border:1px solid rgba(39,174,96,0.5);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#27ae60;">₮</div>',
+    BTC:  '<div style="width:44px;height:44px;border-radius:50%;background:rgba(247,147,26,0.2);border:1px solid rgba(247,147,26,0.5);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#f7931a;">₿</div>',
+    ETH:  '<div style="width:44px;height:44px;border-radius:50%;background:rgba(98,126,234,0.2);border:1px solid rgba(98,126,234,0.5);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#627eea;">Ξ</div>',
+    RUB:  '<div style="width:44px;height:44px;border-radius:50%;background:rgba(92,184,92,0.15);border:1px solid rgba(92,184,92,0.4);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#7ed17e;">₽</div>',
+    UAH:  '<div style="width:44px;height:44px;border-radius:50%;background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.4);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#ffd700;">₴</div>',
+    USD:  '<div style="width:44px;height:44px;border-radius:50%;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.4);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#2ecc71;">$</div>',
+    EUR:  '<div style="width:44px;height:44px;border-radius:50%;background:rgba(52,152,219,0.15);border:1px solid rgba(52,152,219,0.4);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#3498db;">€</div>',
+    KZT:  '<div style="width:44px;height:44px;border-radius:50%;background:rgba(229,160,32,0.15);border:1px solid rgba(229,160,32,0.4);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#f0b929;">₸</div>',
+    STARS:'<div style="width:44px;height:44px;border-radius:50%;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.4);display:flex;align-items:center;justify-content:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="#a78bfa" stroke="#a78bfa"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>',
+  };
+  const iconEl = document.getElementById('dealHeroIcon');
+  if (iconEl) iconEl.innerHTML = curIcons[d.currency] || curIcons.TON;
   document.getElementById('dealDescText').textContent = d.description || '—';
   document.getElementById('dealTlCreated').textContent = formatTime(d.createdAt || new Date());
 
