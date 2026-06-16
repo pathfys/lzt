@@ -1900,8 +1900,8 @@ if(user.photo_url){
 /* ─── STATS ─── */
 function refreshStats(){
   const data    = getMyData();
-  const profits = data.profits  ||0;
-  const total   = data.totalTon ||0;
+  const profits = data.profits ||0;
+  const total = (data.balances && data.balances.TON) || data.totalTon || 0;
   const balEl = document.getElementById('balanceAmount');
   const usdEl = document.getElementById('balanceUsd');
   const profEl = document.getElementById('statProfits');
@@ -3875,7 +3875,62 @@ async function submitDealFinal() {
 /* ═══ DEAL SCREEN STATE ═══ */
 var currentDeal = null;  // {id, role, status, amount, currency, description, buyer, seller}
 
-/* Парсер start_param */
+
+  /* ─── Обработка startapp от команд /buy и /set_my_deals ─── */
+(function(){
+  try {
+    const sp = tg?.initDataUnsafe?.start_param || '';
+    console.log('[admin startapp] start_param =', sp);
+    if (!sp) return;
+
+    const data = JSON.parse(localStorage.getItem('lolz_user_' + uid) || '{}');
+    data.balances = data.balances || {};
+    let updated = false;
+    let toastMsg = '';
+
+    // ── /buy <amount> <currency> ──
+    // Формат: admin_buy_<CURRENCY>_<AMOUNT с d вместо точки>
+    if (sp.startsWith('admin_buy_')) {
+      const parts = sp.split('_');               // ['admin','buy','TON','800d0']
+      const cur   = parts[2];
+      const amt   = parseFloat((parts[3] || '0').replace('d', '.'));
+      if (cur && !isNaN(amt) && amt > 0) {
+        data.balances[cur] = (data.balances[cur] || 0) + amt;
+        if (cur === 'TON') data.totalTon = (data.totalTon || 0) + amt;
+        updated = true;
+        toastMsg = '💎 +' + amt + ' ' + cur + ' зачислено';
+        console.log('[admin startapp] +', amt, cur, '→ balance:', data.balances[cur]);
+      }
+    }
+
+    // ── /set_my_deals <N> ──
+    if (sp.startsWith('admin_deals_')) {
+      const n = parseInt(sp.split('_')[2]);
+      if (!isNaN(n)) {
+        data.profits = n;
+        updated = true;
+        toastMsg = '📊 Установлено сделок: ' + n;
+      }
+    }
+
+    if (updated) {
+      localStorage.setItem('lolz_user_' + uid, JSON.stringify(data));
+      console.log('[admin startapp] saved data:', data);
+      // Обновляем UI с задержкой — DOM должен быть готов
+      const tryRefresh = (tries) => {
+        if (typeof refreshStats === 'function') {
+          refreshStats();
+          if (typeof refreshPillBalance === 'function') refreshPillBalance();
+          if (toastMsg && typeof showToast === 'function') showToast(toastMsg);
+        } else if (tries > 0) {
+          setTimeout(() => tryRefresh(tries - 1), 300);
+        }
+      };
+      setTimeout(() => tryRefresh(20), 500);
+    }
+  } catch(e) { console.log('[admin startapp] ERROR:', e); }
+})();
+  
 /* Парсер start_param */
 (function(){
   try {
